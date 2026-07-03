@@ -9,6 +9,7 @@ import {
   mapLandmarks68to468,
   convertLandmarks68ForOverlay,
 } from "./lib/profiler/index.js";
+import { detectLandmarks } from "./lib/landmarks.js";
 import { analyzeFace } from "./lib/classify/index.js";
 import { generateRecommendations } from "./lib/recommend/rules.js";
 
@@ -22,6 +23,12 @@ const PHOTO_KEYS = [
   "rightProfile",
   "chinUp",
 ];
+
+const MEDIAPIPE_SLOTS = new Set([
+  "front",
+  "leftThreeQuarter",
+  "rightThreeQuarter",
+]);
 
 const emptyPhotos = () =>
   Object.fromEntries(PHOTO_KEYS.map((k) => [k, null]));
@@ -176,64 +183,65 @@ export default function App() {
     setError(null);
 
     try {
-      setProgress("Preparing face data...");
+      setProgress("Running detailed landmark detection...");
 
-      const frontLm68 = landmarkStore.current.front;
-      if (!frontLm68) {
-        throw new Error("Front photo landmarks not available. Please re-upload your front photo.");
+      const imgs = {};
+      for (const key of PHOTO_KEYS) {
+        imgs[key] = imageRefs.current[key] || (await loadImage(photos[key]));
       }
 
-      const frontImg = imageRefs.current.front;
-      const w = frontImg.naturalWidth || frontImg.width;
-      const h = frontImg.naturalHeight || frontImg.height;
-
-      setProgress("Mapping landmarks for classification...");
-
-      const frontMapped = mapLandmarks68to468(frontLm68, w, h);
-      if (!frontMapped) {
-        throw new Error("Could not process front photo landmarks.");
+      // Use MediaPipe 468-point for front and 3/4 views (high precision)
+      const mpResults = {};
+      for (const key of PHOTO_KEYS) {
+        if (MEDIAPIPE_SLOTS.has(key)) {
+          setProgress(`Detecting landmarks: ${key}...`);
+          mpResults[key] = await detectLandmarks(imgs[key], key);
+        }
       }
 
-      const mapSlot = (slot) => {
-        const lm = landmarkStore.current[slot];
-        if (!lm) return null;
-        const img = imageRefs.current[slot];
+      if (!mpResults.front || mpResults.front.noDetection) {
+        throw new Error("Could not detect face in front photo during detailed analysis.");
+      }
+
+      // For profile and chin-up, use face-api 68→468 adapter (handles extreme angles)
+      const faceApiLandmarks = (slot) => {
+        const lm68 = landmarkStore.current[slot];
+        if (!lm68) return null;
+        const img = imgs[slot];
         const sw = img.naturalWidth || img.width;
         const sh = img.naturalHeight || img.height;
-        return mapLandmarks68to468(lm, sw, sh);
+        return mapLandmarks68to468(lm68, sw, sh);
       };
 
-      const leftProfileMapped = mapSlot("leftProfile");
-      const rightProfileMapped = mapSlot("rightProfile");
-      const leftThreeQuarterMapped = mapSlot("leftThreeQuarter");
-      const rightThreeQuarterMapped = mapSlot("rightThreeQuarter");
-      const chinUpMapped = mapSlot("chinUp");
+      const leftProfileLm = faceApiLandmarks("leftProfile");
+      const rightProfileLm = faceApiLandmarks("rightProfile");
+      const chinUpLm = faceApiLandmarks("chinUp");
 
       setProgress("Classifying features...");
 
+      const frontImg = imgs.front;
       const frontImgData = getImageData(frontImg);
+      const w = frontImg.naturalWidth || frontImg.width;
+      const h = frontImg.naturalHeight || frontImg.height;
 
       const result = analyzeFace(
-        frontMapped,
+        mpResults.front.landmarks,
         frontImgData,
         w,
         h,
-        leftProfileMapped,
-        rightProfileMapped,
-        leftThreeQuarterMapped,
-        rightThreeQuarterMapped,
-        chinUpMapped
+        leftProfileLm,
+        rightProfileLm,
+        mpResults.leftThreeQuarter?.landmarks || null,
+        mpResults.rightThreeQuarter?.landmarks || null,
+        chinUpLm
       );
 
       if (heritageResult) {
         result.heritage = heritageResult;
       }
 
-      const overlayPts = convertLandmarks68ForOverlay(frontLm68, w, h);
-      if (overlayPts) {
-        setFrontLandmarks(overlayPts);
-        setFrontDims({ width: w, height: h });
-      }
+      setFrontLandmarks(mpResults.front.landmarks);
+      setFrontDims({ width: w, height: h });
 
       setProgress("Generating recommendations...");
 
