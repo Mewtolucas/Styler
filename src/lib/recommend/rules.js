@@ -26,7 +26,8 @@ function lookup(obj, ...keys) {
 
 function ageBracketKey(ageBracket) {
   switch (ageBracket) {
-    case "under25": return "under25";
+    case "under18": return "under18";
+    case "18-24": return "age18to24";
     case "25-40": return "age25to40";
     case "40-60": return "age40to60";
     case "60+": return "over60";
@@ -40,10 +41,13 @@ function skinDepthCategory(shade) {
   return "deep";
 }
 
-function buildHarmonySections(classification, gender) {
+function buildHarmonySections(classification, gender, ageBracket) {
   const { faceShape, symmetry, chinProjection, undertone, textureSignals, hairType, skinDepth, proportions } = classification;
   const isMen = gender === "men";
+  const isTeen = ageBracket === "under18";
   const sections = [];
+
+  const teenExcludedAreas = ["Contouring", "Lip Color", "Facial Hair"];
 
   const addSection = (category, key, filter) => {
     const section = lookup(proportionHarmony, category, key);
@@ -55,64 +59,65 @@ function buildHarmonySections(classification, gender) {
     }
   };
 
-  const genderFilter = (t) => {
+  const combinedFilter = (t) => {
     if (isMen && t.area.includes("(Women)")) return false;
     if (!isMen && t.area.includes("(Men)")) return false;
+    if (isTeen && teenExcludedAreas.some((a) => t.area.includes(a))) return false;
     return true;
   };
 
   if (proportions?.faceShape) {
     const lr = proportions.faceShape.lengthCheekRatio;
-    if (lr > 1.5) addSection("faceLength", "long", genderFilter);
-    else if (lr < 1.2) addSection("faceLength", "short", genderFilter);
+    if (lr > 1.5) addSection("faceLength", "long", combinedFilter);
+    else if (lr < 1.2) addSection("faceLength", "short", combinedFilter);
   }
 
   if (proportions?.faceShape) {
     const jcr = proportions.faceShape.jawCheekRatio;
-    if (jcr > 0.88) addSection("jawWidth", "wide", genderFilter);
-    else if (jcr < 0.72) addSection("jawWidth", "narrow", genderFilter);
+    if (jcr > 0.88) addSection("jawWidth", "wide", combinedFilter);
+    else if (jcr < 0.72) addSection("jawWidth", "narrow", combinedFilter);
   }
 
   if (proportions?.faceShape) {
     const fcr = proportions.faceShape.foreheadCheekRatio;
-    if (fcr > 0.95) addSection("foreheadBalance", "wide", genderFilter);
-    else if (fcr < 0.75) addSection("foreheadBalance", "narrow", genderFilter);
+    if (fcr > 0.95) addSection("foreheadBalance", "wide", combinedFilter);
+    else if (fcr < 0.75) addSection("foreheadBalance", "narrow", combinedFilter);
   }
 
   if (faceShape === "diamond") {
-    addSection("cheekboneProminence", "prominent", genderFilter);
+    addSection("cheekboneProminence", "prominent", combinedFilter);
   } else if (faceShape === "round" || faceShape === "square") {
-    addSection("cheekboneProminence", "flat", genderFilter);
+    addSection("cheekboneProminence", "flat", combinedFilter);
   }
 
-  if (chinProjection === "short") addSection("chinProjection", "short", genderFilter);
-  else if (chinProjection === "long") addSection("chinProjection", "long", genderFilter);
+  if (chinProjection === "short") addSection("chinProjection", "short", combinedFilter);
+  else if (chinProjection === "long") addSection("chinProjection", "long", combinedFilter);
 
-  if (symmetry === "left-fuller") addSection("symmetry", "leftFuller", genderFilter);
-  else if (symmetry === "right-fuller") addSection("symmetry", "rightFuller", genderFilter);
+  if (symmetry === "left-fuller") addSection("symmetry", "leftFuller", combinedFilter);
+  else if (symmetry === "right-fuller") addSection("symmetry", "rightFuller", combinedFilter);
 
   const primaryEye = classification.eyeShape?.includes("-")
     ? classification.eyeShape.split("-")[0]
     : classification.eyeShape;
   const eyeMap = { round: "round", narrow: "narrow", upturned: "upturned", downturned: "downturned", monolid: "monolid" };
-  if (eyeMap[primaryEye]) addSection("eyeShape", eyeMap[primaryEye], genderFilter);
+  if (eyeMap[primaryEye]) addSection("eyeShape", eyeMap[primaryEye], combinedFilter);
 
-  if (undertone) addSection("skinUndertone", undertone, genderFilter);
+  if (undertone) addSection("skinUndertone", undertone, combinedFilter);
 
   if (textureSignals) {
     for (const signal of textureSignals) {
       const texMap = { oiliness: "oily", dryness: "dry", redness: "redness" };
-      if (texMap[signal]) addSection("skinTexture", texMap[signal], genderFilter);
+      if (texMap[signal]) addSection("skinTexture", texMap[signal], combinedFilter);
     }
   }
 
   const ht = hairType === "unknown" ? null : hairType;
-  if (ht) addSection("hairTexture", ht, genderFilter);
+  if (ht) addSection("hairTexture", ht, combinedFilter);
 
   const depthKey = skinDepthCategory(skinDepth);
-  addSection("skinDepth", depthKey, genderFilter);
+  addSection("skinDepth", depthKey, combinedFilter);
 
-  addSection("faceShapeOutfits", faceShape, genderFilter);
+  addSection("faceShapeOutfits", faceShape, combinedFilter);
 
   return sections;
 }
@@ -129,7 +134,9 @@ export function generateRecommendations(classification, gender, ageBracket) {
       lookup(menHaircuts, faceShape, "straight") ||
       lookup(menHaircuts, "oval", ht);
 
-    if (ageBracket === "under25") {
+    if (ageBracket === "under18") {
+      // Skip facial hair for teens — growth is typically sparse and still developing
+    } else if (ageBracket === "18-24") {
       recommendations.facialHair = [
         menFacialHair.under25Tips.general,
         menFacialHair.under25Tips.edging,
@@ -153,15 +160,17 @@ export function generateRecommendations(classification, gender, ageBracket) {
       lookup(womenHairstyles, faceShape, "straight") ||
       lookup(womenHairstyles, "oval", ht);
 
-    recommendations.contour = lookup(womenMakeup, "contourByFaceShape", faceShape);
-    recommendations.makeupTechnique = Object.values(womenMakeup.generalTechnique);
-    recommendations.makeupTone = lookup(womenMakeup, "toneByUndertone", undertone);
+    if (ageBracket !== "under18") {
+      recommendations.contour = lookup(womenMakeup, "contourByFaceShape", faceShape);
+      recommendations.makeupTechnique = Object.values(womenMakeup.generalTechnique);
+      recommendations.makeupTone = lookup(womenMakeup, "toneByUndertone", undertone);
 
-    const primaryEye = eyeShape.includes("-") ? eyeShape.split("-")[0] : eyeShape;
-    recommendations.eyeMakeup =
-      lookup(womenEyeMakeup, "byEyeShape", primaryEye) ||
-      lookup(womenEyeMakeup, "byEyeShape", "almond");
-    recommendations.eyeMakeupTechnique = Object.values(womenEyeMakeup.generalTechnique);
+      const primaryEye = eyeShape.includes("-") ? eyeShape.split("-")[0] : eyeShape;
+      recommendations.eyeMakeup =
+        lookup(womenEyeMakeup, "byEyeShape", primaryEye) ||
+        lookup(womenEyeMakeup, "byEyeShape", "almond");
+      recommendations.eyeMakeupTechnique = Object.values(womenEyeMakeup.generalTechnique);
+    }
 
     recommendations.glasses = lookup(womenGlasses, faceShape);
     recommendations.glassesFit = womenGlasses.fitNote;
@@ -169,9 +178,11 @@ export function generateRecommendations(classification, gender, ageBracket) {
     recommendations.styleArchetypes = Object.values(womenStyleArchetypes);
   }
 
-  recommendations.hairColor = lookup(hairColor, undertone);
-  if (hairColor.contrastNote) {
-    recommendations.hairColorNote = hairColor.contrastNote;
+  if (ageBracket !== "under18") {
+    recommendations.hairColor = lookup(hairColor, undertone);
+    if (hairColor.contrastNote) {
+      recommendations.hairColorNote = hairColor.contrastNote;
+    }
   }
 
   const skinRoutines = [];
@@ -201,7 +212,14 @@ export function generateRecommendations(classification, gender, ageBracket) {
   recommendations.posture = Object.values(posture);
   recommendations.lifestyle = Object.values(lifestyle);
 
-  recommendations.harmony = buildHarmonySections(classification, gender);
+  recommendations.harmony = buildHarmonySections(classification, gender, ageBracket);
+
+  if (ageBracket === "under18") {
+    recommendations.teenNote = {
+      title: "Your Features Are Still Developing",
+      body: "Between ages 14 and 18, facial bones — especially the jaw, chin, and brow ridge — are still growing and reshaping. Your face shape, proportions, and even skin texture will continue to change through your late teens and into your early twenties. The recommendations here are based on how your features look right now, but don't take them as fixed — what fits today may shift as your bone structure matures. Focus on the basics (skincare, grooming habits, and personal style) rather than trying to correct proportions that are still in motion."
+    };
+  }
 
   return recommendations;
 }

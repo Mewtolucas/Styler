@@ -100,6 +100,17 @@ export default function ResultsView({ classification, recommendations, gender, f
         </p>
       </div>
 
+      {recommendations.teenNote && (
+        <div className="bg-warm-white border border-stone/40 rounded-sm p-6">
+          <h3 className="font-display text-base font-semibold text-ink mb-2">
+            {recommendations.teenNote.title}
+          </h3>
+          <p className="text-sm text-charcoal leading-relaxed">
+            {recommendations.teenNote.body}
+          </p>
+        </div>
+      )}
+
       <div className="bg-warm-white border border-stone/40 rounded-sm p-6">
         <p className="text-xs uppercase tracking-[0.15em] text-clay mb-2">
           Face shape

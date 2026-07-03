@@ -23,7 +23,11 @@ const skincare = {
   },
 
   byAgeBracket: {
-    under25: {
+    under18: {
+      title: "Keep It Simple — Your Skin Is Still Changing",
+      body: "Hormonal changes during your teens cause fluctuations in oil production and skin sensitivity that will settle over time. Stick to three steps: a gentle cleanser (gel or foam for oily skin, cream for dry), a lightweight moisturizer, and daily SPF 30+. Avoid strong actives like retinoids, chemical peels, and high-concentration acids — your skin doesn't need them yet and they can cause irritation on still-developing skin. If acne is persistent, a gentle salicylic acid cleanser (2% or less) is a safe starting point. Don't pick or squeeze — this causes scarring that's harder to address once it sets."
+    },
+    age18to24: {
       title: "Establish the Basics",
       body: "Focus on establishing consistent basics — cleanse, moisturize, daily SPF — before introducing actives. SPF is the single highest-impact long-term habit at any age, and establishing it early compounds over time. Get the foundation right before adding serums or treatments."
     },

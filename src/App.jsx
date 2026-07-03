@@ -272,13 +272,13 @@ export default function App() {
             </div>
             <div className="bg-warm-white border border-stone/40 rounded-sm p-6 space-y-4">
               <p className="text-sm text-charcoal">
-                You must be 18 or older to use this tool.
+                You must be 14 or older to use this tool.
               </p>
               <button
                 onClick={() => setStep(STEPS.SETUP)}
                 className="w-full py-3 bg-ink text-paper font-body text-sm font-medium rounded-sm hover:bg-charcoal transition-colors"
               >
-                I confirm I am 18 or older
+                I confirm I am 14 or older
               </button>
             </div>
             {!profilerReady && (
@@ -327,7 +327,8 @@ export default function App() {
               </label>
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  { value: "under25", label: "Under 25" },
+                  { value: "under18", label: "14–17" },
+                  { value: "18-24", label: "18–24" },
                   { value: "25-40", label: "25–40" },
                   { value: "40-60", label: "40–60" },
                   { value: "60+", label: "60+" },
