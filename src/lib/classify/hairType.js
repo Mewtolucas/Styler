@@ -4,7 +4,7 @@ export function classifyHairType(imageData, landmarks, imgWidth, imgHeight) {
   const centerX = Math.floor(topOfHead.x * imgWidth);
   const regionSize = Math.floor(imgWidth * 0.1);
 
-  if (hairRegionY < 5) return "unknown";
+  if (hairRegionY < 5) return { label: "unknown", proportions: { avgEdge: 0, sampleCount: 0 } };
 
   const { data, width } = imageData;
 
@@ -13,7 +13,7 @@ export function classifyHairType(imageData, landmarks, imgWidth, imgHeight) {
   const yStart = Math.max(0, hairRegionY - regionSize);
   const yEnd = Math.max(0, hairRegionY);
 
-  if (yEnd - yStart < 5 || xEnd - xStart < 5) return "unknown";
+  if (yEnd - yStart < 5 || xEnd - xStart < 5) return { label: "unknown", proportions: { avgEdge: 0, sampleCount: 0 } };
 
   let edgeSum = 0, count = 0;
 
@@ -39,12 +39,20 @@ export function classifyHairType(imageData, landmarks, imgWidth, imgHeight) {
     }
   }
 
-  if (count < 10) return "unknown";
+  if (count < 10) return { label: "unknown", proportions: { avgEdge: 0, sampleCount: count } };
 
   const avgEdge = edgeSum / count;
 
-  if (avgEdge > 40) return "coily";
-  if (avgEdge > 25) return "curly";
-  if (avgEdge > 14) return "wavy";
-  return "straight";
+  let label = "straight";
+  if (avgEdge > 40) label = "coily";
+  else if (avgEdge > 25) label = "curly";
+  else if (avgEdge > 14) label = "wavy";
+
+  return {
+    label,
+    proportions: {
+      avgEdge,
+      sampleCount: count,
+    },
+  };
 }

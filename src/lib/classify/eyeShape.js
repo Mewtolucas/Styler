@@ -41,9 +41,18 @@ export function classifyEyeShape(landmarks) {
       shape = "downturned";
     }
 
-    results.push(shape);
+    results.push({ shape, width, height, aspect, canthalTilt, tiltNorm, creaseSpace, creaseRatio });
   }
 
-  if (results[0] === results[1]) return results[0];
-  return `${results[0]}-${results[1]}`;
+  const label = results[0].shape === results[1].shape
+    ? results[0].shape
+    : `${results[0].shape}-${results[1].shape}`;
+
+  return {
+    label,
+    proportions: {
+      leftEye: results[0],
+      rightEye: results[1],
+    },
+  };
 }

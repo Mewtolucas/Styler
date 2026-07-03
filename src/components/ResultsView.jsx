@@ -32,6 +32,31 @@ function Section({ title, children, defaultOpen = true }) {
   );
 }
 
+function ProportionGroup({ title, data, result }) {
+  if (!data) return null;
+  const fmt = (v) => {
+    if (v === null || v === undefined) return "—";
+    if (typeof v === "number") return Number.isInteger(v) ? String(v) : v.toFixed(4);
+    return String(v);
+  };
+  return (
+    <div>
+      <div className="flex items-baseline gap-2 mb-1">
+        <span className="font-semibold text-ink text-sm">{title}</span>
+        {result && <span className="text-sage font-bold">{result}</span>}
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-0.5">
+        {Object.entries(data).map(([k, v]) => (
+          <div key={k} className="flex justify-between gap-2">
+            <span className="text-clay">{k}</span>
+            <span className="text-ink tabular-nums">{fmt(v)}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function ShapeLabel({ label, description }) {
   return (
     <div className="flex items-baseline gap-3 mb-6">
@@ -181,6 +206,93 @@ export default function ResultsView({ classification, recommendations, gender, f
           <Card key={i} item={item} />
         ))}
       </Section>
+
+      {classification.proportions && (
+        <Section title="Debug: Raw Proportions" defaultOpen={false}>
+          <div className="bg-ink/5 rounded-sm p-4 space-y-5 text-xs font-mono overflow-x-auto">
+            <ProportionGroup title="Face Shape" data={{
+              "Jaw width": classification.proportions.faceShape?.jawWidth,
+              "Cheekbone width": classification.proportions.faceShape?.cheekboneWidth,
+              "Forehead width": classification.proportions.faceShape?.foreheadWidth,
+              "Face length": classification.proportions.faceShape?.faceLength,
+              "Jaw/Cheek ratio": classification.proportions.faceShape?.jawCheekRatio,
+              "Forehead/Cheek ratio": classification.proportions.faceShape?.foreheadCheekRatio,
+              "Length/Cheek ratio": classification.proportions.faceShape?.lengthCheekRatio,
+            }} result={classification.faceShape} />
+
+            <ProportionGroup title="Symmetry" data={{
+              "Left total": classification.proportions.symmetry?.leftTotal,
+              "Right total": classification.proportions.symmetry?.rightTotal,
+              "Normalized diff": classification.proportions.symmetry?.normalizedDiff,
+              "Face width": classification.proportions.symmetry?.faceWidth,
+            }} result={classification.symmetry} />
+
+            <ProportionGroup title="Chin Projection" data={{
+              "Source": classification.proportions.chin?.source,
+              "Front ratio": classification.proportions.chin?.frontRatio,
+              "Chin-up ratio": classification.proportions.chin?.chinUpRatio,
+              "Avg profile ratio": classification.proportions.chin?.avgProfileRatio,
+              "Combined ratio": classification.proportions.chin?.combinedRatio,
+              ...(classification.proportions.chin?.profileRatios?.length > 0
+                ? Object.fromEntries(classification.proportions.chin.profileRatios.map(
+                    (p, i) => [`Profile ${p.side} (${p.method})`, p.ratio]
+                  ))
+                : {}),
+            }} result={classification.chinProjection} />
+
+            <ProportionGroup title="Eyes (Left)" data={{
+              "Width": classification.proportions.eyes?.leftEye?.width,
+              "Height": classification.proportions.eyes?.leftEye?.height,
+              "Aspect ratio": classification.proportions.eyes?.leftEye?.aspect,
+              "Canthal tilt": classification.proportions.eyes?.leftEye?.canthalTilt,
+              "Tilt normalized": classification.proportions.eyes?.leftEye?.tiltNorm,
+              "Crease space": classification.proportions.eyes?.leftEye?.creaseSpace,
+              "Crease ratio": classification.proportions.eyes?.leftEye?.creaseRatio,
+            }} result={classification.proportions.eyes?.leftEye?.shape} />
+
+            <ProportionGroup title="Eyes (Right)" data={{
+              "Width": classification.proportions.eyes?.rightEye?.width,
+              "Height": classification.proportions.eyes?.rightEye?.height,
+              "Aspect ratio": classification.proportions.eyes?.rightEye?.aspect,
+              "Canthal tilt": classification.proportions.eyes?.rightEye?.canthalTilt,
+              "Tilt normalized": classification.proportions.eyes?.rightEye?.tiltNorm,
+              "Crease space": classification.proportions.eyes?.rightEye?.creaseSpace,
+              "Crease ratio": classification.proportions.eyes?.rightEye?.creaseRatio,
+            }} result={classification.proportions.eyes?.rightEye?.shape} />
+
+            <ProportionGroup title="Skin Undertone" data={{
+              "Avg R": classification.proportions.undertone?.avgRgb?.r,
+              "Avg G": classification.proportions.undertone?.avgRgb?.g,
+              "Avg B": classification.proportions.undertone?.avgRgb?.b,
+              "LAB L": classification.proportions.undertone?.lab?.L,
+              "LAB a": classification.proportions.undertone?.lab?.a,
+              "LAB b": classification.proportions.undertone?.lab?.b,
+              "Green dominance": classification.proportions.undertone?.greenDominance,
+            }} result={classification.undertone} />
+
+            <ProportionGroup title="Skin Depth (MST)" data={{
+              "Avg R": classification.proportions.skinDepth?.avgRgb?.r,
+              "Avg G": classification.proportions.skinDepth?.avgRgb?.g,
+              "Avg B": classification.proportions.skinDepth?.avgRgb?.b,
+              "LAB L": classification.proportions.skinDepth?.lab?.L,
+              "LAB a": classification.proportions.skinDepth?.lab?.a,
+              "LAB b": classification.proportions.skinDepth?.lab?.b,
+              "Closest distance": classification.proportions.skinDepth?.closestDistance,
+            }} result={`Shade ${classification.skinDepth}`} />
+
+            <ProportionGroup title="Skin Texture" data={{
+              "Texture score": classification.proportions.texture?.textureScore,
+              "Redness": classification.proportions.texture?.redness,
+              "Dry/oily bright ratio": classification.proportions.texture?.dryOilyBrightRatio,
+            }} result={classification.textureSignals?.join(", ")} />
+
+            <ProportionGroup title="Hair Type" data={{
+              "Avg edge magnitude": classification.proportions.hair?.avgEdge,
+              "Sample count": classification.proportions.hair?.sampleCount,
+            }} result={classification.hairType} />
+          </div>
+        </Section>
+      )}
 
       <div className="border-t border-stone/40 pt-8 pb-12 text-center">
         <p className="text-xs text-clay">

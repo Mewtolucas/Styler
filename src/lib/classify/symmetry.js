@@ -21,6 +21,18 @@ export function classifySymmetry(landmarks) {
     Math.abs(landmarks[234].x - landmarks[454].x) || 0.01;
   const normalizedDiff = diff / faceWidth;
 
-  if (Math.abs(normalizedDiff) < 0.02) return "balanced";
-  return normalizedDiff > 0 ? "left-fuller" : "right-fuller";
+  let label = "balanced";
+  if (Math.abs(normalizedDiff) >= 0.02) {
+    label = normalizedDiff > 0 ? "left-fuller" : "right-fuller";
+  }
+
+  return {
+    label,
+    proportions: {
+      leftTotal,
+      rightTotal,
+      normalizedDiff,
+      faceWidth,
+    },
+  };
 }

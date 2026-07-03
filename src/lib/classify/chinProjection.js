@@ -4,9 +4,10 @@ export function classifyChinProjection(
   rightProfileLandmarks,
   chinUpLandmarks
 ) {
+  const proportions = { profileRatios: [], chinUpRatio: null, frontRatio: null, source: null };
   const profileResults = [];
 
-  for (const profileLandmarks of [leftProfileLandmarks, rightProfileLandmarks]) {
+  for (const [name, profileLandmarks] of [["left", leftProfileLandmarks], ["right", rightProfileLandmarks]]) {
     if (!profileLandmarks) continue;
 
     const noseTip = profileLandmarks[1];
@@ -20,11 +21,13 @@ export function classifyChinProjection(
       const noseToLip = Math.abs(noseTip.y - lipBottom.y);
       const ratio = noseToLip > 0.001 ? chinBeyondLips / noseToLip : 0;
       profileResults.push(ratio);
+      proportions.profileRatios.push({ side: name, ratio, method: "z-depth" });
     } else {
       const lowerFace = Math.abs(noseTip.y - chin.y);
       const chinPortion = Math.abs(lipBottom.y - chin.y);
       const ratio = lowerFace > 0.001 ? chinPortion / lowerFace : 0.5;
       profileResults.push(ratio - 0.35);
+      proportions.profileRatios.push({ side: name, ratio: ratio - 0.35, rawRatio: ratio, method: "y-proportion" });
     }
   }
 
@@ -41,19 +44,25 @@ export function classifyChinProjection(
         const jawWidth = Math.abs(jawLeft.x - jawRight.x);
         const chinToLip = Math.abs(chin.y - lowerLip.y);
         const chinRatio = jawWidth > 0.001 ? chinToLip / jawWidth : 0.5;
+        proportions.chinUpRatio = chinRatio;
 
         if (profileResults.length > 0) {
           const avgProfileRatio =
             profileResults.reduce((a, b) => a + b, 0) / profileResults.length;
           const combined = avgProfileRatio * 0.6 + (chinRatio - 0.35) * 0.4;
-          if (combined < -0.08) return "short";
-          if (combined > 0.12) return "long";
-          return "balanced";
+          proportions.combinedRatio = combined;
+          proportions.source = "profile+chinUp";
+          let label = "balanced";
+          if (combined < -0.08) label = "short";
+          else if (combined > 0.12) label = "long";
+          return { label, proportions };
         }
 
-        if (chinRatio < 0.25) return "short";
-        if (chinRatio > 0.45) return "long";
-        return "balanced";
+        proportions.source = "chinUp-only";
+        let label = "balanced";
+        if (chinRatio < 0.25) label = "short";
+        else if (chinRatio > 0.45) label = "long";
+        return { label, proportions };
       }
     }
   }
@@ -61,24 +70,30 @@ export function classifyChinProjection(
   if (profileResults.length > 0) {
     const avgRatio =
       profileResults.reduce((a, b) => a + b, 0) / profileResults.length;
-    if (avgRatio < -0.1) return "short";
-    if (avgRatio > 0.15) return "long";
-    return "balanced";
+    proportions.avgProfileRatio = avgRatio;
+    proportions.source = "profile";
+    let label = "balanced";
+    if (avgRatio < -0.1) label = "short";
+    else if (avgRatio > 0.15) label = "long";
+    return { label, proportions };
   }
 
-  if (!frontLandmarks) return "balanced";
+  if (!frontLandmarks) return { label: "balanced", proportions: { source: "default" } };
 
   const chin = frontLandmarks[152];
   const lowerLip = frontLandmarks[17];
   const noseTip = frontLandmarks[1];
 
-  if (!chin || !lowerLip || !noseTip) return "balanced";
+  if (!chin || !lowerLip || !noseTip) return { label: "balanced", proportions: { source: "default" } };
 
   const lowerFace = Math.abs(noseTip.y - chin.y);
   const chinPortion = Math.abs(lowerLip.y - chin.y);
   const ratio = lowerFace > 0.001 ? chinPortion / lowerFace : 0.5;
+  proportions.frontRatio = ratio;
+  proportions.source = "front";
 
-  if (ratio < 0.28) return "short";
-  if (ratio > 0.42) return "long";
-  return "balanced";
+  let label = "balanced";
+  if (ratio < 0.28) label = "short";
+  else if (ratio > 0.42) label = "long";
+  return { label, proportions };
 }

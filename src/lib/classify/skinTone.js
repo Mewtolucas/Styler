@@ -73,13 +73,24 @@ export function classifyUndertone(imageData, landmarks, imgWidth, imgHeight) {
   const lab = rgbToLab(avg.r, avg.g, avg.b);
 
   const greenDominance = avg.g - (avg.r + avg.b) / 2;
+
+  let label = "neutral";
   if (greenDominance > 5 && Math.abs(lab.b) < 18) {
-    return "olive";
+    label = "olive";
+  } else if (lab.b > 14) {
+    label = "warm";
+  } else if (lab.b < 4) {
+    label = "cool";
   }
 
-  if (lab.b > 14) return "warm";
-  if (lab.b < 4) return "cool";
-  return "neutral";
+  return {
+    label,
+    proportions: {
+      avgRgb: avg,
+      lab,
+      greenDominance,
+    },
+  };
 }
 
 export function classifySkinDepth(imageData, landmarks, imgWidth, imgHeight) {
@@ -114,5 +125,12 @@ export function classifySkinDepth(imageData, landmarks, imgWidth, imgHeight) {
     }
   }
 
-  return closest;
+  return {
+    shade: closest,
+    proportions: {
+      avgRgb: avg,
+      lab,
+      closestDistance: minDist,
+    },
+  };
 }

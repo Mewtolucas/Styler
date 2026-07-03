@@ -10,6 +10,8 @@ export function classifySkinTexture(imageData, landmarks, imgWidth, imgHeight) {
     imageData, landmarks, imgWidth, imgHeight
   );
 
+  const dryOily = estimateDryOily(imageData, forehead, imgWidth, imgHeight);
+
   const signals = [];
 
   if (textureScore > 800) {
@@ -22,12 +24,18 @@ export function classifySkinTexture(imageData, landmarks, imgWidth, imgHeight) {
     signals.push("redness");
   }
 
-  const dryOily = estimateDryOily(imageData, forehead, imgWidth, imgHeight);
-  if (dryOily) signals.push(dryOily);
+  if (dryOily.label) signals.push(dryOily.label);
 
   if (signals.length === 0) signals.push("balanced");
 
-  return signals;
+  return {
+    signals,
+    proportions: {
+      textureScore,
+      redness,
+      dryOilyBrightRatio: dryOily.brightRatio,
+    },
+  };
 }
 
 function measureLocalVariance(imageData, cx, cy, imgWidth, imgHeight) {
@@ -113,7 +121,8 @@ function estimateDryOily(imageData, forehead, imgWidth, imgHeight) {
   }
 
   const brightRatio = totalCount > 0 ? brightCount / totalCount : 0;
-  if (brightRatio > 0.35) return "oiliness";
-  if (brightRatio < 0.05) return "dryness";
-  return null;
+  let label = null;
+  if (brightRatio > 0.35) label = "oiliness";
+  else if (brightRatio < 0.05) label = "dryness";
+  return { label, brightRatio };
 }
