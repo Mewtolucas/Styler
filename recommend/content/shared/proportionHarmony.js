@@ -1,0 +1,893 @@
+const proportionHarmony = {
+  faceLength: {
+    long: {
+      title: "Visually Shortening a Long Face",
+      techniques: [
+        {
+          area: "Hair",
+          body: "Add width at the sides rather than height on top. Side-swept bangs or a full fringe break the vertical line of the forehead — this is the single most effective non-surgical way to reduce perceived face length. Avoid center parts that create a vertical line reinforcing length. Layered cuts that add volume at ear level widen the mid-face."
+        },
+        {
+          area: "Brows",
+          body: "A flatter, more horizontal brow shape visually shortens the face by creating a strong horizontal line across the mid-face. Avoid highly arched brows — they draw the eye upward and elongate. Extend brow tails slightly to add horizontal emphasis. Fill brows to full thickness, as thin brows offer less of a visual break."
+        },
+        {
+          area: "Glasses",
+          body: "Wide frames with a strong horizontal bar break up vertical length. Aviator-style or rectangular frames with low-set temples add width. Top-heavy frames (browline, clubmaster) draw focus to the mid-face. Avoid small, narrow frames that leave too much face exposed."
+        },
+        {
+          area: "Facial Hair (Men)",
+          body: "Keep facial hair shorter and close-trimmed — long beards visually extend the chin and increase perceived length. A wider stubble pattern or short boxed beard that connects to sideburns adds horizontal mass. Avoid pointed goatees or chin-only styles."
+        },
+        {
+          area: "Contouring (Women)",
+          body: "Apply bronzer or contour along the hairline and chin to darken the top and bottom edges, visually compressing the face. Apply blush horizontally across the apples of the cheeks rather than swept upward — horizontal placement adds perceived width."
+        },
+        {
+          area: "Posing & Photography",
+          body: "A slightly downward camera angle (camera at forehead level, tilted slightly down) shortens the face optically. Tilt the chin down very slightly — not tucked, just below level. Avoid looking up toward a camera, which elongates the jawline."
+        }
+      ]
+    },
+    short: {
+      title: "Visually Lengthening a Short Face",
+      techniques: [
+        {
+          area: "Hair",
+          body: "Build volume and height on top — pompadours, quiffs, high textured styles, or top-knots create vertical lift that elongates the face. A center part draws a vertical line from hairline to chin. Avoid full bangs that cut off the forehead; instead, use side-swept or curtain bangs that show some forehead."
+        },
+        {
+          area: "Brows",
+          body: "A higher, more arched brow lifts the perceived midface and creates vertical space. The peak of the arch should sit at roughly the outer third of the brow. Groom the lower edge of the brow to raise the apparent arch rather than plucking from the top."
+        },
+        {
+          area: "Glasses",
+          body: "Taller frames or frames with vertical height add length. Avoid wide, flat frames that emphasize width. Cat-eye or upswept shapes draw the eye upward. Thin metal frames leave more face visible than thick acetate."
+        },
+        {
+          area: "Facial Hair (Men)",
+          body: "A longer beard or goatee adds vertical length below the chin. A pointed or tapered beard extends the jawline downward. Keeping the cheek line low rather than shaved high preserves more vertical mass."
+        },
+        {
+          area: "Contouring (Women)",
+          body: "Highlight down the center of the face — forehead, nose bridge, chin — to create a vertical light line. Apply blush slightly higher on the cheekbones and sweep upward toward the temples. Contour the sides of the face to narrow the perceived width."
+        },
+        {
+          area: "Posing & Photography",
+          body: "A slightly upward camera angle (camera at chin level, angled up) elongates the face. Keep the chin level or very slightly lifted. Front-facing shots emphasize symmetry while 3/4 angles add depth and perceived length."
+        }
+      ]
+    }
+  },
+
+  jawWidth: {
+    wide: {
+      title: "Softening a Wide Jaw",
+      techniques: [
+        {
+          area: "Hair",
+          body: "Longer styles that fall past the jaw — chin-length bobs, layered cuts, or shoulder-length hair — cover and soften the jawline. Volume on top draws focus upward. Avoid blunt cuts ending exactly at the jaw, which frame and highlight its width."
+        },
+        {
+          area: "Brows",
+          body: "Softly arched brows draw attention upward and away from the jawline. A slightly wider brow gap (not over-plucked, just naturally spaced) opens the upper face and redirects focus."
+        },
+        {
+          area: "Glasses",
+          body: "Frames that are slightly wider than the jawline prevent the jaw from appearing as the widest point. Round or oval frames soften angular jaw lines. Avoid narrow frames that sit well inside the jaw width, which make the jaw look wider by contrast."
+        },
+        {
+          area: "Facial Hair (Men)",
+          body: "A beard that is trimmed narrower at the jaw angles — faded at the sides, fuller at the chin — reshapes the jaw's perceived width. Avoid full, square-shaped beards that echo the jaw's width. A pointed or rounded beard bottom narrows the silhouette."
+        },
+        {
+          area: "Contouring (Women)",
+          body: "Contour along the jaw angles and the outer corners of the jawline to shadow the widest points. Blend back toward the ear. Highlight the center of the chin to draw attention to the narrower midpoint rather than the wide corners."
+        },
+        {
+          area: "Accessories & Neckline",
+          body: "V-neck and open collars draw the eye downward and inward, away from the jaw. Avoid crew necks and turtlenecks that create a horizontal line at the jaw's level. Longer necklaces or pendants create a vertical line that counteracts jaw width."
+        }
+      ]
+    },
+    narrow: {
+      title: "Adding Definition to a Narrow Jaw",
+      techniques: [
+        {
+          area: "Hair",
+          body: "Chin-length styles that add volume at jaw level — bobs, layered cuts with outward flips at the bottom — visually widen the lower face. Avoid very long, straight styles that pull the eye past the jaw without adding width."
+        },
+        {
+          area: "Brows",
+          body: "Straighter, more horizontal brows with a strong line add structural emphasis to the upper face, balancing a tapered lower face. Full, bold brows read as more defined and provide a frame that a narrow jaw can anchor against."
+        },
+        {
+          area: "Glasses",
+          body: "Bottom-heavy frames or frames with detail at the lower edge add visual weight at the jaw level. Semi-rimless frames with a strong lower bar can also work. Aviator styles that widen toward the bottom match and support the jawline."
+        },
+        {
+          area: "Facial Hair (Men)",
+          body: "A boxed or squared-off beard adds width and structure to a narrow jaw. Keep the cheek line defined and the sides full rather than trimmed close. A medium-length beard fills out the lower third of the face."
+        },
+        {
+          area: "Contouring (Women)",
+          body: "Highlight along the jawline and outer chin area to bring light and perceived width to the lower face. Apply blush lower on the cheeks, sweeping toward the jaw. Avoid heavy contouring on the jawline, which would narrow it further."
+        },
+        {
+          area: "Accessories & Neckline",
+          body: "Boat necks, off-shoulder tops, and wide collars add horizontal emphasis at jaw level. Choker necklaces or short necklaces create a frame that adds perceived width to the lower face area."
+        }
+      ]
+    }
+  },
+
+  foreheadBalance: {
+    wide: {
+      title: "Balancing a Wide Forehead",
+      techniques: [
+        {
+          area: "Hair",
+          body: "Side-swept bangs, curtain bangs, or a partial fringe cover the outer edges of the forehead without hiding it entirely. Avoid slicked-back styles or tight ponytails that fully expose a wide forehead. Volume at the sides of the head at ear level balances the upper width."
+        },
+        {
+          area: "Brows",
+          body: "Extend brow tails slightly closer to the temples to fill the visual space. Fuller brows reduce the apparent forehead area by raising the lower boundary. Avoid thin, highly arched brows that leave more forehead exposed."
+        },
+        {
+          area: "Glasses",
+          body: "Frames at least as wide as the forehead prevent it from appearing as the widest feature. Thick upper rims (browline or wayfarer) create a horizontal break across the forehead zone."
+        },
+        {
+          area: "Contouring (Women)",
+          body: "Apply contour along the hairline at the temples and outer forehead to darken and visually recede those areas. Blend carefully — hairline contour is visible up close and needs seamless blending into the hairline."
+        },
+        {
+          area: "Headwear",
+          body: "Hats, headbands, or scarves that sit at the hairline break up the forehead area. A headband worn at the forehead visually shortens it and adds a design element."
+        }
+      ]
+    },
+    narrow: {
+      title: "Opening Up a Narrow Forehead",
+      techniques: [
+        {
+          area: "Hair",
+          body: "Sweep hair back or to the side to expose the full forehead — it reads as intentional openness rather than narrowness. Volume at the crown and temples adds perceived width. Avoid heavy bangs that compress the already-narrow forehead."
+        },
+        {
+          area: "Brows",
+          body: "Space brows slightly wider apart — avoid over-extending the inner corners, which closes the forehead visually. A clean, defined inner brow edge opens the space between the brows, making the forehead feel wider."
+        },
+        {
+          area: "Glasses",
+          body: "Frames slightly narrower than the cheekbones let the forehead appear wider by comparison. Avoid very wide frames that make the forehead look narrower above them."
+        },
+        {
+          area: "Contouring (Women)",
+          body: "Highlight the center and outer edges of the forehead to bring it forward and add perceived breadth. A light, luminous product along the hairline at the temples opens the area."
+        }
+      ]
+    }
+  },
+
+  cheekboneProminence: {
+    prominent: {
+      title: "Working With Prominent Cheekbones",
+      techniques: [
+        {
+          area: "Hair",
+          body: "Styles with volume at the forehead and jaw level — avoiding volume concentrated at cheekbone height — balance the diamond-like proportions. Longer layers that fall past the cheekbones soften their prominence."
+        },
+        {
+          area: "Brows",
+          body: "Softly curved brows that follow the cheekbone angle create a harmonious line. Very angular brows can compete with prominent cheekbones — aim for gentle, natural arches."
+        },
+        {
+          area: "Glasses",
+          body: "Frames that sit at or slightly above the cheekbone line work with the prominence rather than fighting it. Rimless or thin frames avoid adding more visual weight at the widest point."
+        },
+        {
+          area: "Contouring (Women)",
+          body: "Skip heavy cheekbone contour — it's unnecessary and can look hollow. Instead, use a light cream blush on the cheekbone tops and highlight to celebrate the structure. Contour below the cheekbone is optional and should be subtle."
+        },
+        {
+          area: "Posing & Photography",
+          body: "Slightly angled lighting emphasizes cheekbone structure naturally — use a 3/4 angle with light from the side. This creates natural shadow beneath the cheekbones without makeup."
+        }
+      ]
+    },
+    flat: {
+      title: "Adding Cheekbone Definition",
+      techniques: [
+        {
+          area: "Hair",
+          body: "Styles tucked behind the ears or pulled back expose and highlight the cheek area. Avoid very full, voluminous styles at cheek level that compress the cheek structure."
+        },
+        {
+          area: "Contouring (Women)",
+          body: "Apply a contour shade in the hollow below the cheekbone, angling from beside the ear toward the corner of the mouth (stopping well before the mouth). Highlight directly on top of the cheekbone — the contrast between highlight above and shadow below creates the appearance of structure."
+        },
+        {
+          area: "Blush Placement",
+          body: "Apply blush slightly higher and more toward the temple rather than on the apple of the cheek. This lifts the perceived cheekbone position. Avoid applying blush too low, which can flatten the midface."
+        },
+        {
+          area: "Glasses",
+          body: "Frames with prominent or decorative temples at the cheekbone level add structure. Thick acetate frames in this zone create a strong horizontal element that mimics cheekbone prominence."
+        },
+        {
+          area: "Facial Hair (Men)",
+          body: "A defined cheek line — whether from stubble or a trimmed beard — adds a visible structural edge at the cheekbone level. The contrast between clean-shaven cheek and facial hair below creates a natural shadow line."
+        }
+      ]
+    }
+  },
+
+  eyeShape: {
+    round: {
+      title: "Working With Round Eyes",
+      techniques: [
+        {
+          area: "Brows",
+          body: "An angular or gently arched brow provides contrast to round eyes, adding structure above the eye. A flat brow echoes the roundness — some arch creates a more dynamic relationship between brow and eye."
+        },
+        {
+          area: "Eye Makeup (Women)",
+          body: "Elongate round eyes with a winged liner that extends past the outer corner, or by smoking out shadow toward the temple. Darker shadow at the outer corner adds directional shape. Avoid lining the entire eye heavily, which emphasizes roundness."
+        },
+        {
+          area: "Glasses",
+          body: "Angular or rectangular frames contrast round eyes, adding structure. Cat-eye frames elongate. Avoid perfectly round frames that echo the eye shape — some geometric tension is more flattering."
+        },
+        {
+          area: "Lashes",
+          body: "Focus length and volume at the outer corners to extend the eye shape outward. Outer-corner-heavy false lashes or mascara concentration at the outer third creates a subtle elongation effect."
+        }
+      ]
+    },
+    narrow: {
+      title: "Opening Narrow or Hooded Eyes",
+      techniques: [
+        {
+          area: "Brows",
+          body: "Keep brows well-groomed below the arch to maximize the visible space between the brow and eyelid. A clean, lifted arch opens the eye area. Avoid heavy, low-sitting brows that compress the visible lid space."
+        },
+        {
+          area: "Eye Makeup (Women)",
+          body: "Apply lighter, shimmery shades on the center of the lid to bring it forward. For hooded eyes, apply crease color above the natural crease so it's visible when the eyes are open. Tight-lining (lining the upper waterline) defines without using lid space. Avoid heavy dark shadow on the lid, which closes the eye further."
+        },
+        {
+          area: "Glasses",
+          body: "Frames with a higher bridge or adjustable nose pads that sit higher on the face open the eye area. Avoid frames that sit too low, covering the brow-to-eye space."
+        },
+        {
+          area: "Lashes",
+          body: "Curled lashes open the eye vertically — an eyelash curler is high-leverage. Individual or segment lashes at the center of the lash line lift the eye's apparent height."
+        },
+        {
+          area: "Inner Corner",
+          body: "A touch of light shimmer or highlighter at the inner corner of the eye opens the eye and adds perceived width between the eyes. This is a subtle technique with outsized effect."
+        }
+      ]
+    },
+    upturned: {
+      title: "Working With Upturned Eyes",
+      techniques: [
+        {
+          area: "Brows",
+          body: "Follow the natural upward tilt with a brow that has its highest point at the outer third. Avoid a sharply peaked brow at the center, which can exaggerate the upturn."
+        },
+        {
+          area: "Eye Makeup (Women)",
+          body: "Apply slightly darker shadow at the outer corner and lower lash line to anchor the eye and balance the upward tilt. A soft smudged liner along the lower outer lash line adds weight. Avoid aggressively upswept wing liner that exaggerates the tilt."
+        },
+        {
+          area: "Glasses",
+          body: "Frames with a slight downturn or horizontal top line balance the natural upturn. Rectangular frames create a grounding horizontal line."
+        }
+      ]
+    },
+    downturned: {
+      title: "Lifting Downturned Eyes",
+      techniques: [
+        {
+          area: "Brows",
+          body: "Lift the tail of the brow — avoid letting the brow tail drop below the inner brow height, which reinforces the downturn. The outer brow should end at or above the level of the inner brow."
+        },
+        {
+          area: "Eye Makeup (Women)",
+          body: "Wing liner upward at the outer corner — the wing direction is the most effective single technique. Apply darker shadow at the outer-upper corner, building color upward rather than following the natural downward droop. Avoid heavy liner on the lower outer corner."
+        },
+        {
+          area: "Glasses",
+          body: "Cat-eye or upswept frames lift the outer eye area. Avoid frames that drop at the outer corners or have heavy lower rims that pull the eye down."
+        },
+        {
+          area: "Lashes",
+          body: "Focus length and curl at the outer corners. Lift the outer lashes with a curler, then apply extra mascara at the outer third. This mechanically lifts the eye's endpoint."
+        }
+      ]
+    },
+    monolid: {
+      title: "Enhancing Monolid Eyes",
+      techniques: [
+        {
+          area: "Brows",
+          body: "A clean, defined brow with some arch provides structure above the lid. The space between the brow and lash line is the primary visible zone — keeping this clean and defined frames the eye beautifully."
+        },
+        {
+          area: "Eye Makeup (Women)",
+          body: "Use gradient techniques — lighter at the inner corner, darker toward the outer edge — to add dimension across the lid. Apply shadow with eyes open so you can see placement (crease-based techniques designed for creased lids need adjustment). Smudged liner along the lash line adds definition without the hard line that can look heavy."
+        },
+        {
+          area: "Glasses",
+          body: "Frames with a higher bridge that sits above the fold work well. Avoid frames that compress the brow-to-lash area. Thinner frames show more of the eye area."
+        },
+        {
+          area: "Lashes",
+          body: "Curling is essential — it opens the eye vertically. A heated eyelash curler holds the curl longer. Individual lashes give more control than strip lashes, which can overwhelm a monolid."
+        }
+      ]
+    }
+  },
+
+  chinProjection: {
+    short: {
+      title: "Bringing a Receding Chin Forward",
+      techniques: [
+        {
+          area: "Facial Hair (Men)",
+          body: "A fuller beard with more length at the chin point is the most effective non-surgical technique. Let the beard grow slightly longer at the chin center and taper toward the sides. A classic goatee or Van Dyke adds forward projection. Even stubble at the chin adds shadow and perceived mass."
+        },
+        {
+          area: "Hair",
+          body: "Volume at the back of the head and crown balances a receding chin by shifting the profile's center of gravity upward. Avoid slicked-back styles that emphasize the profile's chin recession. For longer hair, layered volume at the nape softens the profile."
+        },
+        {
+          area: "Contouring (Women)",
+          body: "Highlight the center point of the chin with a light, luminous product to bring it forward. Apply a subtle contour on either side of the chin to narrow and define it. This creates the illusion of forward projection through light and shadow."
+        },
+        {
+          area: "Posing & Photography",
+          body: "Push the chin slightly forward and down — the \"turtle\" technique used in professional photography. This brings the chin forward in profile and defines the jawline. Avoid resting the chin back, which emphasizes recession."
+        },
+        {
+          area: "Glasses",
+          body: "Frames that sit slightly lower on the nose bring focus to the mid-face rather than the chin area. Thick upper rims draw attention upward."
+        },
+        {
+          area: "Neckline & Collars",
+          body: "Open collars and V-necks that expose the neck below the chin create visual space that reduces focus on chin projection. Avoid high collars or turtlenecks that compress the jawline-to-neck area."
+        }
+      ]
+    },
+    long: {
+      title: "Softening a Prominent Chin",
+      techniques: [
+        {
+          area: "Facial Hair (Men)",
+          body: "Keep the beard shorter at the chin center and fuller at the sides to redistribute visual weight horizontally. A rounded beard shape rather than a pointed one softens the chin. Avoid pointed goatees or chin-only styles that extend the chin further."
+        },
+        {
+          area: "Hair",
+          body: "Volume at the sides of the head at jaw and cheekbone level balances a prominent chin. A full, chin-length bob or layered style at jaw level draws attention to the mid-face. Avoid very short, close-cropped styles that leave the chin as the dominant feature."
+        },
+        {
+          area: "Contouring (Women)",
+          body: "Apply contour at the tip and underside of the chin to darken and visually recede the area. Highlight the upper lip and cheekbones to draw focus upward. Avoid highlighting the chin tip, which would bring it further forward."
+        },
+        {
+          area: "Posing & Photography",
+          body: "Keep the chin level or very slightly tucked — avoid lifting the chin, which projects it further. A front-facing shot de-emphasizes chin projection compared to a profile view."
+        },
+        {
+          area: "Glasses",
+          body: "Wider frames that extend beyond the jawline reduce the chin's relative prominence. Frames with visual weight at the top (browline) redirect focus upward."
+        }
+      ]
+    }
+  },
+
+  symmetry: {
+    leftFuller: {
+      title: "Balancing Left-Side Fullness",
+      techniques: [
+        {
+          area: "Hair Parting",
+          body: "Part hair to the right — a side part on the opposite side of the fuller half draws the viewer's eye across the face, creating a natural balancing motion. The hair volume on the right side counterweights the left's fullness."
+        },
+        {
+          area: "Brows",
+          body: "Groom the left brow slightly thinner at its widest point and leave the right brow slightly fuller. The difference should be subtle — millimeters, not major reshaping. This reduces the visual mass on the fuller side."
+        },
+        {
+          area: "Contouring (Women)",
+          body: "Apply a slightly deeper contour along the left jawline and cheek to shadow the fuller side. Apply slightly more highlight on the right side to bring it forward. The differential should be blendable and undetectable — the goal is perceived balance, not visible makeup asymmetry."
+        },
+        {
+          area: "Glasses",
+          body: "Symmetrical frames naturally mask facial asymmetry because the geometric regularity of the frames becomes the dominant visual structure. Thicker frames mask more asymmetry than thin or rimless styles."
+        },
+        {
+          area: "Posing & Photography",
+          body: "Turn slightly to show the right (less full) side more prominently to the camera. When the fuller side is angled slightly away, foreshortening reduces its apparent width. Professional headshot photographers routinely pose subjects showing their narrower side."
+        }
+      ]
+    },
+    rightFuller: {
+      title: "Balancing Right-Side Fullness",
+      techniques: [
+        {
+          area: "Hair Parting",
+          body: "Part hair to the left — the hair volume falls to the left side, counterweighting the right's fullness. A deep side part is more effective than a slight offset."
+        },
+        {
+          area: "Brows",
+          body: "Groom the right brow slightly thinner at its widest point and leave the left brow slightly fuller. Subtle adjustments — the brows are close enough to the center of vision that small changes register."
+        },
+        {
+          area: "Contouring (Women)",
+          body: "Apply deeper contour on the right jawline and cheek. More highlight on the left. Same differential technique as left-fuller, mirrored."
+        },
+        {
+          area: "Glasses",
+          body: "Symmetrical frames mask asymmetry through geometric regularity. Thicker frames provide more visual structure to override the underlying asymmetry."
+        },
+        {
+          area: "Posing & Photography",
+          body: "Turn slightly to show the left (less full) side more prominently to the camera. The foreshortening on the angled-away fuller side balances the visual weight."
+        }
+      ]
+    }
+  },
+
+  skinUndertone: {
+    warm: {
+      title: "Harmonizing With Warm Undertones",
+      techniques: [
+        {
+          area: "Clothing Colors",
+          body: "Earth tones, warm reds, burnt orange, olive green, mustard, cream, and warm browns complement warm undertones. Gold jewelry tends to harmonize better than silver. Ivory reads more natural than bright white against warm skin."
+        },
+        {
+          area: "Hair Color",
+          body: "Warm tones in hair — golden blonde, copper, auburn, warm chestnut, caramel highlights — echo the skin's warmth. Avoid ashy or blue-toned hair colors that can make warm skin look sallow."
+        },
+        {
+          area: "Lip Color (Women)",
+          body: "Warm reds (orange-red, tomato red), coral, peach, warm nude, and brick tones harmonize. Avoid cool fuchsia or blue-based pinks that clash with warm undertones."
+        },
+        {
+          area: "Lighting & Photography",
+          body: "Warm-toned (golden hour, tungsten) lighting enhances warm undertones. Cool fluorescent lighting can wash out warm skin — if shooting indoors, warm the white balance slightly."
+        }
+      ]
+    },
+    cool: {
+      title: "Harmonizing With Cool Undertones",
+      techniques: [
+        {
+          area: "Clothing Colors",
+          body: "Jewel tones, cool blues, emerald green, lavender, plum, charcoal, and crisp white complement cool undertones. Silver jewelry tends to harmonize better than gold. Bright white reads cleaner than cream or ivory."
+        },
+        {
+          area: "Hair Color",
+          body: "Ash tones in hair — platinum blonde, ash brown, cool espresso, blue-black — complement cool skin. Avoid overly warm or brassy tones that can look artificial against cool undertones."
+        },
+        {
+          area: "Lip Color (Women)",
+          body: "Blue-based reds (cherry, wine), cool pinks, berry shades, and mauve tones harmonize. Avoid warm oranges or corals that can clash with cool undertones."
+        },
+        {
+          area: "Lighting & Photography",
+          body: "Neutral to cool-toned lighting flatters cool undertones. Avoid very warm/amber lighting that can make cool skin look ashen. Overcast daylight is often ideal."
+        }
+      ]
+    },
+    neutral: {
+      title: "Flexibility With Neutral Undertones",
+      techniques: [
+        {
+          area: "Clothing Colors",
+          body: "Both warm and cool colors work — neutral undertones have the widest range. Muted tones (dusty rose, sage, slate) tend to look particularly natural. Both gold and silver jewelry work, as do mixed metals."
+        },
+        {
+          area: "Hair Color",
+          body: "Both warm and cool hair tones work without clashing. This is genuinely the most flexible category — you can try either direction based on the look you want rather than needing to match."
+        },
+        {
+          area: "Lip Color (Women)",
+          body: "True reds (neither strongly warm nor cool), dusty rose, mauve, and soft berry tones are safe defaults. You can branch into warm or cool directions without risk of clashing."
+        },
+        {
+          area: "Contrast Level",
+          body: "Pay attention to contrast between hair, skin, and eye color rather than undertone alone. High contrast (dark hair + light skin) supports bolder makeup and clothing choices. Low contrast benefits from tonal dressing."
+        }
+      ]
+    },
+    olive: {
+      title: "Harmonizing With Olive Undertones",
+      techniques: [
+        {
+          area: "Clothing Colors",
+          body: "Olive, sage, forest green, warm terracotta, mustard, chocolate brown, and muted earth tones complement the green cast in olive skin. Avoid pastel pink and pale lilac, which can emphasize the green and look ashy. Rich jewel tones (emerald, ruby, sapphire) work well at any depth."
+        },
+        {
+          area: "Hair Color",
+          body: "Rich, warm browns, dark chocolate, and auburn complement olive skin across all depths. Avoid ashy blondes, which can look gray against olive skin. Warm highlights (caramel, honey) add dimension without clashing."
+        },
+        {
+          area: "Lip Color (Women)",
+          body: "Warm nudes, terracotta, warm berry, and brick reds harmonize with olive undertones. Avoid bright pink and cool mauve, which can look gray against olive skin. Brown-based lip colors are particularly flattering."
+        },
+        {
+          area: "Foundation Matching",
+          body: "Test foundations on the jawline in natural daylight — indoor lighting consistently skews olive undertones. Look for formulas specifically labeled olive or neutral-olive rather than warm or cool, which both tend to look slightly off."
+        }
+      ]
+    }
+  },
+
+  skinTexture: {
+    oily: {
+      title: "Managing Shine Without Stripping",
+      techniques: [
+        {
+          area: "Skincare Routine",
+          body: "Use a lightweight, oil-free moisturizer — skipping moisturizer causes rebound oil production. A niacinamide serum (2-5%) regulates sebum production over weeks. Blotting papers throughout the day remove shine without disturbing makeup or sunscreen."
+        },
+        {
+          area: "Makeup (Women)",
+          body: "Mattifying primer in the T-zone only — mattifying the entire face looks flat. Set with translucent powder on oily zones, leave drier areas dewy. A setting spray locks everything without adding shine. Powder foundations absorb oil better than liquid in oily zones."
+        },
+        {
+          area: "Photography",
+          body: "Blot or powder immediately before photos — oil reflects flash and studio lighting. Matte skin photographs with more even lighting distribution. Natural light is more forgiving than flash for oily skin."
+        }
+      ]
+    },
+    dry: {
+      title: "Building Glow on Dry Skin",
+      techniques: [
+        {
+          area: "Skincare Routine",
+          body: "Layer a hydrating toner or essence under moisturizer for deeper hydration. A hyaluronic acid serum on damp skin pulls moisture in. Seal with a slightly richer moisturizer, especially at night. Avoid foaming cleansers that strip natural oils."
+        },
+        {
+          area: "Makeup (Women)",
+          body: "Use a hydrating or dewy primer — avoid mattifying products that cling to dry patches. Cream and liquid products (blush, highlight, foundation) sit better than powder on dry skin. If using powder, apply sparingly and only where needed."
+        },
+        {
+          area: "Photography",
+          body: "Dewy skin photographs beautifully in natural light. Apply a luminous moisturizer or facial oil 10 minutes before photos. Avoid heavy powder, which looks chalky and settles into dry lines on camera."
+        }
+      ]
+    },
+    redness: {
+      title: "Calming and Neutralizing Redness",
+      techniques: [
+        {
+          area: "Skincare Routine",
+          body: "Centella asiatica (cica) and azelaic acid are both evidence-backed for reducing redness over time. Avoid hot water on the face, physical scrubs, and alcohol-based products. Fragrance-free formulations reduce the risk of irritation-driven redness."
+        },
+        {
+          area: "Makeup (Women)",
+          body: "A green-tinted color corrector under foundation neutralizes redness optically. Apply only where needed — full-face green corrector looks ashen. A yellow-toned concealer works for lighter redness without the green cast."
+        },
+        {
+          area: "Clothing Colors",
+          body: "Green tones in clothing (olive, sage, forest) neutralize facial redness by visual complementarity. Avoid bright red or pink clothing near the face, which can echo and amplify redness."
+        },
+        {
+          area: "Lighting & Photography",
+          body: "Cool-toned lighting reduces the appearance of redness. Warm lighting amplifies it. In photos, slight underexposure or a cooler white balance can minimize redness without looking unnatural."
+        }
+      ]
+    }
+  },
+
+  skinDepth: {
+    light: {
+      title: "Color Harmony for Light Skin",
+      techniques: [
+        {
+          area: "Clothing Colors",
+          body: "Soft contrast works best — muted navy, soft charcoal, dusty rose, sage, and cream feel cohesive without overwhelming. High-saturation neons can wash out lighter skin. Deep jewel tones (burgundy, forest green, sapphire) provide flattering contrast without harshness. Black reads very high-contrast — soften with charcoal or off-black if you prefer subtlety."
+        },
+        {
+          area: "Metallics & Jewelry",
+          body: "Both gold and silver can work depending on undertone, but rose gold is particularly flattering across most light skin tones. Avoid very large, highly polished pieces that reflect light onto the face and blow out the skin in photos."
+        },
+        {
+          area: "Prints & Patterns",
+          body: "Medium-contrast prints with muted tones sit naturally against lighter skin. Avoid very high-contrast black-and-white graphic prints that can make the face look flat by comparison."
+        },
+        {
+          area: "Hair Color Contrast",
+          body: "The gap between hair color and skin tone drives overall contrast level. Dark hair on light skin is high-contrast — it supports bold clothing and makeup. Light hair on light skin is low-contrast — tonal, monochromatic dressing looks intentional rather than washed out."
+        },
+        {
+          area: "Photography",
+          body: "Light skin reflects ambient color strongly — nearby brightly colored walls or clothing can cast visible color onto the face. Neutral clothing near the face produces the cleanest skin tone in photos."
+        }
+      ]
+    },
+    medium: {
+      title: "Color Harmony for Medium Skin",
+      techniques: [
+        {
+          area: "Clothing Colors",
+          body: "Medium skin has the widest working range of clothing colors. Rich earth tones (terracotta, olive, camel, chocolate), warm reds, teal, and mustard all harmonize well. Both pastels and deep shades work — the medium contrast range gives flexibility. Pure white and pure black both flatter."
+        },
+        {
+          area: "Metallics & Jewelry",
+          body: "Gold jewelry is a natural complement for warmer medium tones. Copper and bronze add richness. Silver works best on cooler medium tones. Don't be afraid of mixed metals — medium skin handles the tonal variation."
+        },
+        {
+          area: "Prints & Patterns",
+          body: "Bold, saturated prints look vibrant against medium skin without competing. Warm-toned prints (paisley, floral with warm bases) feel particularly cohesive. Medium skin handles both busy and minimal patterns."
+        },
+        {
+          area: "Hair Color Contrast",
+          body: "Medium skin supports a wide range of hair colors from dark to medium-light. Warm highlights (caramel, honey, copper) add dimension. Going very light or very dark both create intentional contrast. Stay within two to three levels of your natural shade for the most harmonious result."
+        },
+        {
+          area: "Photography",
+          body: "Medium skin handles a range of lighting conditions well. Warm golden-hour light enhances warmth; cooler overcast light brings out surface detail. Both work — choose based on the mood you want."
+        }
+      ]
+    },
+    deep: {
+      title: "Color Harmony for Deep Skin",
+      techniques: [
+        {
+          area: "Clothing Colors",
+          body: "Rich, saturated colors — royal blue, emerald green, ruby red, bright orange, cobalt, magenta — look vivid and striking. Soft pastels can look luminous against deep skin rather than washed out. Pure white creates strong, clean contrast. Avoid muddy or desaturated browns and grays that can look dull — opt for clear, definite tones."
+        },
+        {
+          area: "Metallics & Jewelry",
+          body: "Gold in all shades — yellow gold, rose gold, bronze — is a natural complement. Copper accents add warmth. Silver and platinum create bold, deliberate contrast. Large, statement pieces read as intentional and proportional."
+        },
+        {
+          area: "Prints & Patterns",
+          body: "High-contrast prints and bold patterns stand out clearly and look intentional. African wax prints, geometric patterns, and color-blocked designs all read well. Subtle prints can get lost — choose patterns with clear contrast and scale."
+        },
+        {
+          area: "Hair Color Contrast",
+          body: "Subtle warm tones (deep auburn, mahogany, warm espresso) add richness visible in direct light. Bold color choices (deep red, warm blonde highlights, color accents) create striking contrast. Jet black reads clean and defined. Avoid ashy or cool-toned colors that can look dusty."
+        },
+        {
+          area: "Photography",
+          body: "Proper exposure is critical — automatic camera settings often underexpose dark skin. Manual exposure or spot-metering on the face ensures accurate representation. Warm, directional lighting brings out highlights and dimension in the skin. Avoid flat, frontal flash."
+        }
+      ]
+    }
+  },
+
+  faceShapeOutfits: {
+    oval: {
+      title: "Outfit Balance for Oval Faces",
+      techniques: [
+        {
+          area: "Necklines",
+          body: "Nearly any neckline works — oval faces have balanced proportions that don't need correction. Experiment freely with crew necks, V-necks, boat necks, and scoop necks. Use neckline choice to express style rather than compensate."
+        },
+        {
+          area: "Collars & Structure",
+          body: "Structured blazer collars and tailored shirts frame the face well. Mandarin collars and band collars work cleanly. Avoid only the extremes — very high, tight turtlenecks or very deep plunging necklines — which can distort the natural balance."
+        },
+        {
+          area: "Accessories",
+          body: "Medium-length necklaces (princess or matinee length) complement the proportions. Statement earrings and simple pendants both work. Scarves worn loosely are a clean accent."
+        },
+        {
+          area: "Color Placement",
+          body: "With balanced proportions, you can wear bold colors near the face without concern about exaggerating any dimension. Let personal preference and skin tone guide color placement rather than face-shape correction."
+        }
+      ]
+    },
+    round: {
+      title: "Outfit Balance for Round Faces",
+      techniques: [
+        {
+          area: "Necklines",
+          body: "V-necks and open collars create a vertical line that elongates the face-to-chest area. Scoop necks that dip below the collarbone add length. Avoid tight crew necks that create a horizontal line at the chin's level — they echo the face's width."
+        },
+        {
+          area: "Collars & Structure",
+          body: "Open shirt collars with the top button undone create a V-shape frame. Pointed blazer lapels add angular contrast. Avoid Mandarin collars and band collars that sit close to the jaw and emphasize roundness."
+        },
+        {
+          area: "Accessories",
+          body: "Long pendant necklaces draw the eye downward in a vertical line. Angular, geometric earrings add contrast to soft facial curves. Avoid chokers and short necklaces that circle the face and reinforce roundness."
+        },
+        {
+          area: "Color Placement",
+          body: "Darker colors near the face and neckline slim and define. A dark top with lighter bottoms draws the eye downward. Vertical stripes in scarves or shirts add elongation. Avoid wide horizontal stripes near the face."
+        }
+      ]
+    },
+    square: {
+      title: "Outfit Balance for Square Faces",
+      techniques: [
+        {
+          area: "Necklines",
+          body: "Scoop necks and U-shaped necklines soften the jawline's angles with their curves. V-necks work by adding a downward point. Avoid square necklines that mirror the jaw's angular shape — unless you want to lean into the geometric structure."
+        },
+        {
+          area: "Collars & Structure",
+          body: "Rounded, soft collars and draped necklines soften the face's angular structure. Cowl necks add flowing curves. Avoid stiff, pointed collars that echo the jaw's angles — or use them intentionally for a sharp, structured look."
+        },
+        {
+          area: "Accessories",
+          body: "Round or oval earrings and curved pendants provide visual contrast to angular features. Draped scarves and flowing necklaces add softness. Long, single-strand necklaces break the horizontal emphasis."
+        },
+        {
+          area: "Color Placement",
+          body: "Softer, muted tones near the face reduce the visual intensity of strong angles. Monochromatic neckline-to-hair tonal blending smooths the jaw-to-clothing transition. Bold colors further from the face keep the overall look dynamic."
+        }
+      ]
+    },
+    heart: {
+      title: "Outfit Balance for Heart-Shaped Faces",
+      techniques: [
+        {
+          area: "Necklines",
+          body: "Boat necks and wide necklines add width at the shoulder-to-jaw area, balancing the wider forehead. Crew necks sit at the right height to add horizontal emphasis below the chin. Avoid halter tops and narrow straps that draw inward toward the chin point."
+        },
+        {
+          area: "Collars & Structure",
+          body: "Wide collars and off-shoulder styles add visual weight where the face tapers. Structured shoulders in blazers and jackets balance a wider forehead. Epaulets or shoulder detailing broadens the frame."
+        },
+        {
+          area: "Accessories",
+          body: "Wider earrings at the jawline add fullness where the face narrows. Chokers and short necklaces add horizontal emphasis. Avoid long, narrowing pendants that echo the taper from forehead to chin."
+        },
+        {
+          area: "Color Placement",
+          body: "Lighter colors near the jawline broaden and lift the lower face. Darker tones on top near the forehead can visually narrow the upper face. Prints with horizontal emphasis at chest level balance the taper."
+        }
+      ]
+    },
+    oblong: {
+      title: "Outfit Balance for Oblong Faces",
+      techniques: [
+        {
+          area: "Necklines",
+          body: "Wide, horizontal necklines — boat necks, off-shoulder, wide crew necks — add width that breaks the vertical line. Avoid deep V-necks that extend the vertical length further downward. Cowl necks fill the space with soft volume."
+        },
+        {
+          area: "Collars & Structure",
+          body: "Turtlenecks and mock necks fill the space between jaw and chest, shortening the face-to-body transition. Wide, spread collars add horizontal emphasis. Avoid narrow, pointed collars that add length."
+        },
+        {
+          area: "Accessories",
+          body: "Chokers and short necklaces create a horizontal break that visually shortens. Wide, stud earrings add horizontal emphasis at the face. Avoid long, dangling earrings and long pendant necklaces that extend the vertical line."
+        },
+        {
+          area: "Color Placement",
+          body: "Bright or contrasting colors at the neckline create a visual anchor that stops the eye, adding a horizontal break. Horizontal stripes in scarves and tops work well. Avoid strong vertical lines in neckwear."
+        }
+      ]
+    },
+    diamond: {
+      title: "Outfit Balance for Diamond Faces",
+      techniques: [
+        {
+          area: "Necklines",
+          body: "V-necks and scoop necks work well — they create a shape that echoes the diamond's point at the chin without adding width at the cheekbones. Boat necks add width to the narrower forehead and jawline. Avoid very tight, high necklines that draw attention to the narrowing at forehead and jaw."
+        },
+        {
+          area: "Collars & Structure",
+          body: "Open collars with moderate spread balance the narrow jawline. Structured jackets with moderate shoulder padding add frame at a narrow point. Soft, draped necklines work well by not competing with the cheekbone width."
+        },
+        {
+          area: "Accessories",
+          body: "Earrings that are wider at the bottom add visual weight at the jawline. Short to medium necklaces frame the narrow chin area. Avoid very wide earrings at cheekbone level that exaggerate the widest point."
+        },
+        {
+          area: "Color Placement",
+          body: "Draw attention to the jawline and forehead with lighter colors to visually widen those narrower areas. Slightly darker tones near the cheeks subtly de-emphasize the width. A bright scarf or necklace near the collarbone adds a focal point below the narrow chin."
+        }
+      ]
+    },
+    triangle: {
+      title: "Outfit Balance for Triangle Faces",
+      techniques: [
+        {
+          area: "Necklines",
+          body: "Wider necklines and off-shoulder styles add visual width at the narrow forehead zone. Boat necks and bateau necklines are particularly effective. Avoid narrow V-necks that mirror the taper from jaw to forehead."
+        },
+        {
+          area: "Collars & Structure",
+          body: "Structured, padded shoulders balance the wider jawline by adding width above. Wide lapels and prominent collars broaden the upper frame. Avoid dropping-shoulder silhouettes that narrow the upper body."
+        },
+        {
+          area: "Accessories",
+          body: "Statement earrings near the forehead area add visual weight where the face is narrower. Wide hats and headbands broaden the top of the face. Short necklaces that sit at the collarbone add horizontal emphasis above the jaw."
+        },
+        {
+          area: "Color Placement",
+          body: "Lighter, brighter colors on top and darker tones below shift visual weight upward. Shoulder-area accents (epaulets, shoulder detail) add upper-body width. Horizontal lines and patterns at the chest counter the bottom-heavy proportions."
+        }
+      ]
+    }
+  },
+
+  hairTexture: {
+    straight: {
+      title: "Adding Movement to Straight Hair",
+      techniques: [
+        {
+          area: "Cut & Style",
+          body: "Layered cuts create movement that straight hair doesn't produce on its own. Razored or point-cut ends add texture at the tips. A texturizing spray or salt spray adds grip and separation. Blow-drying with a round brush creates temporary body and direction."
+        },
+        {
+          area: "Volume",
+          body: "Apply volumizing mousse or root-lifting spray to damp hair at the roots before drying. Blow-dry upside down or lift sections at the root with a clip while drying. Dry shampoo at the roots between washes adds grip and lift."
+        },
+        {
+          area: "Parting",
+          body: "An off-center or deep side part creates visual asymmetry and movement. A zig-zag part adds volume at the root. Switching your part occasionally prevents the hair from lying too flat in one direction."
+        }
+      ]
+    },
+    wavy: {
+      title: "Enhancing Natural Wave Pattern",
+      techniques: [
+        {
+          area: "Cut & Style",
+          body: "Cut hair while dry so the stylist can see the natural wave pattern — wet-cut wavy hair often dries shorter and differently shaped than expected. Layers should follow the wave rather than fighting it. Avoid over-thinning, which can cause frizz at the ends."
+        },
+        {
+          area: "Definition",
+          body: "Scrunch in a curl-enhancing cream or mousse on damp hair and air-dry or diffuse on low heat. The \"scrunch out the crunch\" technique — applying a gel, letting it dry to a cast, then scrunching the crunch out — gives defined waves without stiffness."
+        },
+        {
+          area: "Frizz Management",
+          body: "A microfiber towel or cotton T-shirt for drying reduces frizz compared to a terry towel. Avoid brushing dry wavy hair — finger-comb or use a wide-tooth comb on conditioned, wet hair only."
+        }
+      ]
+    },
+    curly: {
+      title: "Defining and Shaping Curls",
+      techniques: [
+        {
+          area: "Cut & Style",
+          body: "Curl-by-curl cutting (DevaCut or similar) shapes each curl individually rather than cutting a uniform length that dries unevenly. Always cut dry or nearly dry. Avoid razor cutting, which can cause frizz on curly textures."
+        },
+        {
+          area: "Definition",
+          body: "Apply leave-in conditioner, then a curl cream, then a gel — in that order — to soaking wet hair (the LOC or LCG method). Diffuse on low heat with the diffuser cupping curls upward. Refresh next-day curls with a water spray and a small amount of gel."
+        },
+        {
+          area: "Volume & Shape",
+          body: "Clip roots while drying to lift curls away from the scalp. Pineapple (loose high ponytail) or satin pillowcase preserves volume overnight. Avoid weighing down roots with heavy products — apply heavier products mid-shaft and below."
+        }
+      ]
+    },
+    coily: {
+      title: "Caring for and Styling Coily Hair",
+      techniques: [
+        {
+          area: "Moisture",
+          body: "Coily hair's tight curl pattern makes it harder for natural oil to travel down the shaft — deep conditioning weekly is essential, not optional. The LOC method (Liquid-Oil-Cream) seals in moisture effectively. Avoid sulfate shampoos that strip moisture; co-wash or use sulfate-free cleansers."
+        },
+        {
+          area: "Definition",
+          body: "Twist-outs, braid-outs, and coil-outs define the pattern while adding elongation. Apply products to small, wet sections for even distribution. A denman brush through conditioned sections creates uniform coil definition."
+        },
+        {
+          area: "Protective Styling",
+          body: "Protective styles (braids, twists, updos) reduce manipulation and breakage. Alternate between protective and loose styles to avoid tension-related thinning at the edges. Sleep on satin or silk to reduce friction-related breakage and preserve moisture."
+        },
+        {
+          area: "Shape & Silhouette",
+          body: "Shape the silhouette intentionally — a rounded afro adds width and softness, a tapered shape adds structure, an asymmetric cut adds edge. Use an afro pick or wide-tooth comb to shape. The silhouette interacts with face shape the same way any haircut does."
+        }
+      ]
+    }
+  }
+};
+
+export default proportionHarmony;

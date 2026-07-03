@@ -207,6 +207,26 @@ export default function ResultsView({ classification, recommendations, gender, f
         ))}
       </Section>
 
+      {recommendations.harmony?.length > 0 && (
+        <>
+          <div className="text-center mt-12 mb-4">
+            <p className="text-xs uppercase tracking-[0.2em] text-clay mb-2">
+              Personalized for your features
+            </p>
+            <h2 className="font-display text-2xl md:text-3xl font-bold text-ink tracking-tight">
+              Proportion Harmony
+            </h2>
+          </div>
+          {recommendations.harmony.map((section, si) => (
+            <Section key={si} title={section.title} defaultOpen={si < 3}>
+              {section.techniques.map((tech, ti) => (
+                <Card key={ti} item={{ title: tech.area, body: tech.body }} />
+              ))}
+            </Section>
+          ))}
+        </>
+      )}
+
       {classification.proportions && (
         <Section title="Debug: Raw Proportions" defaultOpen={false}>
           <div className="bg-ink/5 rounded-sm p-4 space-y-5 text-xs font-mono overflow-x-auto">
