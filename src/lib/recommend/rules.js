@@ -180,58 +180,97 @@ function buildHarmonySections(classification, gender, ageBracket) {
   return sections;
 }
 
+// Impact weights for hairstyle proportion adjustments.
+// Based on visual perception research: overall face frame dominates first
+// impression, vertical thirds are the next most salient imbalance, then
+// structural widths, then detail features.
+const HAIRSTYLE_WEIGHTS = {
+  faceRatio: 1.0,
+  faceLength: 0.95,
+  foreheadThird: 0.9,
+  midfaceThird: 0.85,
+  lowerFaceThird: 0.85,
+  jawWidth: 0.75,
+  foreheadWidth: 0.7,
+  cheekbones: 0.6,
+  chinProjection: 0.55,
+  eyeSpacing: 0.4,
+};
+
 function buildHairstyleProportionNotes(classification) {
-  const notes = [];
+  const scored = [];
   const { facialThirds, faceRatio, eyeSpacing, chinProjection, faceShape, proportions } = classification;
+  const thirds = proportions?.facialThirds;
+  const shape = proportions?.faceShape;
+  const eyeSp = proportions?.eyeSpacing;
 
-  // Facial thirds
-  if (facialThirds && facialThirds !== "balanced") {
-    if (facialThirds.includes("long forehead") && hairstyleProportions.longForehead) notes.push(hairstyleProportions.longForehead);
-    if (facialThirds.includes("short forehead") && hairstyleProportions.shortForehead) notes.push(hairstyleProportions.shortForehead);
-    if (facialThirds.includes("long midface") && hairstyleProportions.longMidface) notes.push(hairstyleProportions.longMidface);
-    if (facialThirds.includes("short midface") && hairstyleProportions.shortMidface) notes.push(hairstyleProportions.shortMidface);
-    if (facialThirds.includes("long lower face") && hairstyleProportions.longLowerFace) notes.push(hairstyleProportions.longLowerFace);
-    if (facialThirds.includes("short lower face") && hairstyleProportions.shortLowerFace) notes.push(hairstyleProportions.shortLowerFace);
+  const add = (content, weight, deviation) => {
+    if (content) scored.push({ content, score: weight * Math.abs(deviation) });
+  };
+
+  // Face width-to-height ratio — deviation from golden ratio 1.618
+  if (proportions?.faceRatio) {
+    const ratio = proportions.faceRatio.value;
+    if (ratio > 1.7) add(hairstyleProportions.narrowFace, HAIRSTYLE_WEIGHTS.faceRatio, (ratio - 1.618) / 1.618);
+    else if (ratio < 1.45) add(hairstyleProportions.wideFace, HAIRSTYLE_WEIGHTS.faceRatio, (1.618 - ratio) / 1.618);
   }
 
-  // Face width-to-height ratio
-  if (faceRatio === "narrow") notes.push(hairstyleProportions.narrowFace);
-  else if (faceRatio === "wide") notes.push(hairstyleProportions.wideFace);
-
-  // Face length
-  if (proportions?.faceShape) {
-    const lr = proportions.faceShape.lengthCheekRatio;
-    if (lr > 1.5) notes.push(hairstyleProportions.longFace);
-    else if (lr < 1.2) notes.push(hairstyleProportions.shortFace);
+  // Face length — deviation from balanced lengthCheekRatio ~1.35
+  if (shape) {
+    const lr = shape.lengthCheekRatio;
+    if (lr > 1.5) add(hairstyleProportions.longFace, HAIRSTYLE_WEIGHTS.faceLength, (lr - 1.35) / 1.35);
+    else if (lr < 1.2) add(hairstyleProportions.shortFace, HAIRSTYLE_WEIGHTS.faceLength, (1.35 - lr) / 1.35);
   }
 
-  // Jaw width
-  if (proportions?.faceShape) {
-    const jcr = proportions.faceShape.jawCheekRatio;
-    if (jcr > 0.88) notes.push(hairstyleProportions.wideJaw);
-    else if (jcr < 0.72) notes.push(hairstyleProportions.narrowJaw);
+  // Facial thirds — use actual deviation percentages from equal thirds
+  if (thirds && facialThirds !== "balanced") {
+    const fd = Math.abs(thirds.foreheadDeviation);
+    const md = Math.abs(thirds.midfaceDeviation);
+    const ld = Math.abs(thirds.lowerFaceDeviation);
+    if (thirds.foreheadDeviation > 0.15) add(hairstyleProportions.longForehead, HAIRSTYLE_WEIGHTS.foreheadThird, fd);
+    if (thirds.foreheadDeviation < -0.15) add(hairstyleProportions.shortForehead, HAIRSTYLE_WEIGHTS.foreheadThird, fd);
+    if (thirds.midfaceDeviation > 0.15) add(hairstyleProportions.longMidface, HAIRSTYLE_WEIGHTS.midfaceThird, md);
+    if (thirds.midfaceDeviation < -0.15) add(hairstyleProportions.shortMidface, HAIRSTYLE_WEIGHTS.midfaceThird, md);
+    if (thirds.lowerFaceDeviation > 0.15) add(hairstyleProportions.longLowerFace, HAIRSTYLE_WEIGHTS.lowerFaceThird, ld);
+    if (thirds.lowerFaceDeviation < -0.15) add(hairstyleProportions.shortLowerFace, HAIRSTYLE_WEIGHTS.lowerFaceThird, ld);
   }
 
-  // Forehead width
-  if (proportions?.faceShape) {
-    const fcr = proportions.faceShape.foreheadCheekRatio;
-    if (fcr > 0.95) notes.push(hairstyleProportions.wideForehead);
-    else if (fcr < 0.75) notes.push(hairstyleProportions.narrowForehead);
+  // Jaw width — deviation from balanced jawCheekRatio ~0.80
+  if (shape) {
+    const jcr = shape.jawCheekRatio;
+    if (jcr > 0.88) add(hairstyleProportions.wideJaw, HAIRSTYLE_WEIGHTS.jawWidth, (jcr - 0.80) / 0.80);
+    else if (jcr < 0.72) add(hairstyleProportions.narrowJaw, HAIRSTYLE_WEIGHTS.jawWidth, (0.80 - jcr) / 0.80);
   }
 
-  // Cheekbone prominence
-  if (faceShape === "diamond") notes.push(hairstyleProportions.prominentCheekbones);
-  else if (faceShape === "round" || faceShape === "square") notes.push(hairstyleProportions.flatCheekbones);
+  // Forehead width — deviation from balanced foreheadCheekRatio ~0.85
+  if (shape) {
+    const fcr = shape.foreheadCheekRatio;
+    if (fcr > 0.95) add(hairstyleProportions.wideForehead, HAIRSTYLE_WEIGHTS.foreheadWidth, (fcr - 0.85) / 0.85);
+    else if (fcr < 0.75) add(hairstyleProportions.narrowForehead, HAIRSTYLE_WEIGHTS.foreheadWidth, (0.85 - fcr) / 0.85);
+  }
 
-  // Chin projection
-  if (chinProjection === "short") notes.push(hairstyleProportions.shortChin);
-  else if (chinProjection === "long") notes.push(hairstyleProportions.longChin);
+  // Cheekbone prominence — binary from face shape, deviation approximated
+  if (faceShape === "diamond") add(hairstyleProportions.prominentCheekbones, HAIRSTYLE_WEIGHTS.cheekbones, 0.3);
+  else if (faceShape === "round" || faceShape === "square") add(hairstyleProportions.flatCheekbones, HAIRSTYLE_WEIGHTS.cheekbones, 0.2);
 
-  // Eye spacing
-  if (eyeSpacing === "wide-set") notes.push(hairstyleProportions.wideSetEyes);
-  else if (eyeSpacing === "close-set") notes.push(hairstyleProportions.closeSetEyes);
+  // Chin projection — binary label, use proportional chin data if available
+  if (chinProjection === "short") {
+    const dev = proportions?.chin?.ratio ? Math.abs(proportions.chin.ratio - 1.0) : 0.25;
+    add(hairstyleProportions.shortChin, HAIRSTYLE_WEIGHTS.chinProjection, dev);
+  } else if (chinProjection === "long") {
+    const dev = proportions?.chin?.ratio ? Math.abs(proportions.chin.ratio - 1.0) : 0.25;
+    add(hairstyleProportions.longChin, HAIRSTYLE_WEIGHTS.chinProjection, dev);
+  }
 
-  return notes;
+  // Eye spacing — deviation from balanced ratio 1.0
+  if (eyeSp) {
+    const esr = eyeSp.ratio;
+    if (esr > 1.2) add(hairstyleProportions.wideSetEyes, HAIRSTYLE_WEIGHTS.eyeSpacing, (esr - 1.0) / 1.0);
+    else if (esr < 0.8) add(hairstyleProportions.closeSetEyes, HAIRSTYLE_WEIGHTS.eyeSpacing, (1.0 - esr) / 1.0);
+  }
+
+  scored.sort((a, b) => b.score - a.score);
+  return scored.map((s) => s.content);
 }
 
 export function generateRecommendations(classification, gender, ageBracket) {
