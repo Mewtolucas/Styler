@@ -5,20 +5,21 @@ let landmarker = null;
 export async function initLandmarker() {
   if (landmarker) return landmarker;
 
+  const base = import.meta.env.BASE_URL || "/";
+
   const vision = await FilesetResolver.forVisionTasks(
-    "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
+    base + "wasm"
   );
 
   landmarker = await FaceLandmarker.createFromOptions(vision, {
     baseOptions: {
-      modelAssetPath:
-        "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",
+      modelAssetPath: base + "face_landmarker.task",
       delegate: "GPU",
     },
     runningMode: "IMAGE",
     numFaces: 1,
-    minFaceDetectionConfidence: 0.3,
-    minFacePresenceConfidence: 0.3,
+    minFaceDetectionConfidence: 0.2,
+    minFacePresenceConfidence: 0.2,
     outputFaceBlendshapes: false,
     outputFacialTransformationMatrixes: true,
   });

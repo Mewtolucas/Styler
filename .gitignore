@@ -1,3 +1,5 @@
 node_modules/
 dist/
 .vite/
+public/wasm/
+public/face_landmarker.task
