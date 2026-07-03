@@ -8,16 +8,34 @@ const SLOTS = [
     icon: "◉",
   },
   {
-    key: "profile",
-    label: "Profile",
-    description: "Turn to show your face from the side.",
+    key: "leftThreeQuarter",
+    label: "Left 3/4",
+    description: "Turn left — both eyes visible, left side closer.",
+    icon: "◑",
+  },
+  {
+    key: "rightThreeQuarter",
+    label: "Right 3/4",
+    description: "Turn right — both eyes visible, right side closer.",
     icon: "◐",
   },
   {
-    key: "threequarter",
-    label: "3/4 Angle",
-    description: "Turn partway — both eyes visible, one closer.",
+    key: "leftProfile",
+    label: "Left Profile",
+    description: "Turn fully left to show your left side.",
     icon: "◑",
+  },
+  {
+    key: "rightProfile",
+    label: "Right Profile",
+    description: "Turn fully right to show your right side.",
+    icon: "◐",
+  },
+  {
+    key: "chinUp",
+    label: "Chin Up",
+    description: "Tilt chin slightly upward, face toward camera.",
+    icon: "◓",
   },
 ];
 
@@ -44,17 +62,17 @@ export default function PhotoUpload({ photos, onPhotoChange, validations }) {
   );
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-4xl mx-auto">
+    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 w-full max-w-5xl mx-auto">
       {SLOTS.map((slot) => {
         const photo = photos[slot.key];
         const validation = validations[slot.key];
         const inputRef = useRef();
 
         return (
-          <div key={slot.key} className="flex flex-col items-center gap-3">
+          <div key={slot.key} className="flex flex-col items-center gap-2">
             <div className="flex items-center gap-2">
-              <span className="text-xl">{slot.icon}</span>
-              <span className="font-display text-lg font-semibold tracking-tight text-ink">
+              <span className="text-lg">{slot.icon}</span>
+              <span className="font-display text-base font-semibold tracking-tight text-ink">
                 {slot.label}
               </span>
             </div>
@@ -83,13 +101,13 @@ export default function PhotoUpload({ photos, onPhotoChange, validations }) {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="flex flex-col items-center justify-center h-full px-4 text-center">
-                  <div className="text-3xl text-stone mb-2">+</div>
-                  <p className="text-sm text-clay leading-snug">
+                <div className="flex flex-col items-center justify-center h-full px-3 text-center">
+                  <div className="text-2xl text-stone mb-1">+</div>
+                  <p className="text-xs text-clay leading-snug">
                     {slot.description}
                   </p>
-                  <p className="text-xs text-stone mt-2">
-                    Drop or click to upload
+                  <p className="text-[10px] text-stone mt-1">
+                    Drop or tap to upload
                   </p>
                 </div>
               )}
@@ -116,12 +134,12 @@ export default function PhotoUpload({ photos, onPhotoChange, validations }) {
             </div>
 
             {validation && !validation.valid && (
-              <p className="text-sm text-error leading-snug text-center px-2">
+              <p className="text-xs text-error leading-snug text-center px-1">
                 {validation.message}
               </p>
             )}
             {validation?.valid && (
-              <p className="text-sm text-success">Ready</p>
+              <p className="text-xs text-success">Ready</p>
             )}
           </div>
         );

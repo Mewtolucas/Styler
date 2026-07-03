@@ -11,12 +11,20 @@ export function analyzeFace(
   frontImageData,
   frontWidth,
   frontHeight,
-  profileLandmarks,
-  threequarterLandmarks
+  leftProfileLandmarks,
+  rightProfileLandmarks,
+  leftThreeQuarterLandmarks,
+  rightThreeQuarterLandmarks,
+  chinUpLandmarks
 ) {
   const faceShape = classifyFaceShape(frontLandmarks);
   const symmetry = classifySymmetry(frontLandmarks);
-  const chinProjection = classifyChinProjection(frontLandmarks, profileLandmarks);
+  const chinProjection = classifyChinProjection(
+    frontLandmarks,
+    leftProfileLandmarks,
+    rightProfileLandmarks,
+    chinUpLandmarks
+  );
   const undertone = classifyUndertone(frontImageData, frontLandmarks, frontWidth, frontHeight);
   const skinDepth = classifySkinDepth(frontImageData, frontLandmarks, frontWidth, frontHeight);
   const textureSignals = classifySkinTexture(frontImageData, frontLandmarks, frontWidth, frontHeight);

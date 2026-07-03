@@ -1,15 +1,53 @@
-export function classifyChinProjection(frontLandmarks, profileLandmarks) {
-  if (profileLandmarks && profileLandmarks.length >= 468) {
-    const noseTip = profileLandmarks[1];
-    const chin = profileLandmarks[152];
-    const lipBottom = profileLandmarks[17];
+export function classifyChinProjection(
+  frontLandmarks,
+  leftProfileLandmarks,
+  rightProfileLandmarks,
+  chinUpLandmarks
+) {
+  const profileResults = [];
 
-    const chinBeyondLips = chin.z - lipBottom.z;
-    const noseToLip = Math.abs(noseTip.y - lipBottom.y);
-    const ratio = noseToLip > 0.001 ? chinBeyondLips / noseToLip : 0;
+  for (const profileLandmarks of [leftProfileLandmarks, rightProfileLandmarks]) {
+    if (profileLandmarks && profileLandmarks.length >= 468) {
+      const noseTip = profileLandmarks[1];
+      const chin = profileLandmarks[152];
+      const lipBottom = profileLandmarks[17];
 
-    if (ratio < -0.1) return "short";
-    if (ratio > 0.15) return "long";
+      const chinBeyondLips = chin.z - lipBottom.z;
+      const noseToLip = Math.abs(noseTip.y - lipBottom.y);
+      const ratio = noseToLip > 0.001 ? chinBeyondLips / noseToLip : 0;
+      profileResults.push(ratio);
+    }
+  }
+
+  if (chinUpLandmarks && chinUpLandmarks.length >= 468) {
+    const chin = chinUpLandmarks[152];
+    const lowerLip = chinUpLandmarks[17];
+    const noseTip = chinUpLandmarks[1];
+    const jawLeft = chinUpLandmarks[136];
+    const jawRight = chinUpLandmarks[365];
+    const jawWidth = Math.abs(jawLeft.x - jawRight.x);
+    const chinToLip = Math.abs(chin.y - lowerLip.y);
+    const chinRatio = jawWidth > 0.001 ? chinToLip / jawWidth : 0.5;
+
+    if (profileResults.length > 0) {
+      const avgProfileRatio =
+        profileResults.reduce((a, b) => a + b, 0) / profileResults.length;
+      const combined = avgProfileRatio * 0.6 + (chinRatio - 0.35) * 0.4;
+      if (combined < -0.08) return "short";
+      if (combined > 0.12) return "long";
+      return "balanced";
+    }
+
+    if (chinRatio < 0.25) return "short";
+    if (chinRatio > 0.45) return "long";
+    return "balanced";
+  }
+
+  if (profileResults.length > 0) {
+    const avgRatio =
+      profileResults.reduce((a, b) => a + b, 0) / profileResults.length;
+    if (avgRatio < -0.1) return "short";
+    if (avgRatio > 0.15) return "long";
     return "balanced";
   }
 

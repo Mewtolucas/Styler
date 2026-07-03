@@ -9,11 +9,23 @@ import { generateRecommendations } from "./lib/recommend/rules.js";
 
 const STEPS = { AGE_GATE: 0, SETUP: 1, PHOTOS: 2, ANALYZING: 3, RESULTS: 4 };
 
+const PHOTO_KEYS = [
+  "front",
+  "leftThreeQuarter",
+  "rightThreeQuarter",
+  "leftProfile",
+  "rightProfile",
+  "chinUp",
+];
+
+const emptyPhotos = () =>
+  Object.fromEntries(PHOTO_KEYS.map((k) => [k, null]));
+
 export default function App() {
   const [step, setStep] = useState(STEPS.AGE_GATE);
   const [gender, setGender] = useState(null);
   const [ageBracket, setAgeBracket] = useState(null);
-  const [photos, setPhotos] = useState({ front: null, profile: null, threequarter: null });
+  const [photos, setPhotos] = useState(emptyPhotos);
   const [validations, setValidations] = useState({});
   const [classification, setClassification] = useState(null);
   const [recommendations, setRecommendations] = useState(null);
@@ -83,12 +95,7 @@ export default function App() {
   }, []);
 
   const canAnalyze =
-    photos.front &&
-    photos.profile &&
-    photos.threequarter &&
-    validations.front?.valid &&
-    validations.profile?.valid &&
-    validations.threequarter?.valid &&
+    PHOTO_KEYS.every((k) => photos[k] && validations[k]?.valid) &&
     gender &&
     ageBracket;
 
@@ -99,36 +106,46 @@ export default function App() {
     try {
       setProgress("Detecting landmarks across all photos...");
 
-      const frontImg = imageRefs.current.front || (await loadImage(photos.front));
-      const profileImg = imageRefs.current.profile || (await loadImage(photos.profile));
-      const threeqImg = imageRefs.current.threequarter || (await loadImage(photos.threequarter));
+      const imgs = {};
+      for (const key of PHOTO_KEYS) {
+        imgs[key] = imageRefs.current[key] || (await loadImage(photos[key]));
+      }
 
-      const [frontResult, profileResult, threeqResult] = await Promise.all([
-        detectLandmarks(frontImg),
-        detectLandmarks(profileImg),
-        detectLandmarks(threeqImg),
-      ]);
+      const results = {};
+      const detections = await Promise.all(
+        PHOTO_KEYS.map(async (key) => {
+          const r = await detectLandmarks(imgs[key]);
+          return [key, r];
+        })
+      );
+      for (const [key, r] of detections) {
+        results[key] = r;
+      }
 
-      if (!frontResult) {
+      if (!results.front) {
         throw new Error("Could not detect face in front photo.");
       }
 
       setProgress("Classifying features...");
 
+      const frontImg = imgs.front;
       const frontImgData = getImageData(frontImg);
       const w = frontImg.naturalWidth || frontImg.width;
       const h = frontImg.naturalHeight || frontImg.height;
 
       const result = analyzeFace(
-        frontResult.landmarks,
+        results.front.landmarks,
         frontImgData,
         w,
         h,
-        profileResult?.landmarks || null,
-        threeqResult?.landmarks || null
+        results.leftProfile?.landmarks || null,
+        results.rightProfile?.landmarks || null,
+        results.leftThreeQuarter?.landmarks || null,
+        results.rightThreeQuarter?.landmarks || null,
+        results.chinUp?.landmarks || null
       );
 
-      setFrontLandmarks(frontResult.landmarks);
+      setFrontLandmarks(results.front.landmarks);
       setFrontDims({ width: w, height: h });
 
       setProgress("Generating recommendations...");
@@ -146,7 +163,7 @@ export default function App() {
 
   const startOver = () => {
     Object.values(photos).forEach((url) => url && URL.revokeObjectURL(url));
-    setPhotos({ front: null, profile: null, threequarter: null });
+    setPhotos(emptyPhotos());
     setValidations({});
     setClassification(null);
     setRecommendations(null);
@@ -160,7 +177,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-paper">
       <header className="border-b border-stone/40 px-6 py-4">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
+        <div className="max-w-5xl mx-auto flex items-center justify-between">
           <h1 className="font-display text-xl font-bold tracking-tight text-ink">
             Style Analyzer
           </h1>
@@ -285,12 +302,12 @@ export default function App() {
           <div className="space-y-10">
             <div className="text-center max-w-lg mx-auto">
               <h2 className="font-display text-2xl font-bold text-ink tracking-tight mb-2">
-                Upload three photos
+                Upload six photos
               </h2>
               <p className="text-sm text-clay leading-relaxed">
-                We need front, profile, and 3/4 angle photos for accurate
-                analysis. Good, even lighting works best. All processing
-                happens in your browser.
+                We need front, both 3/4 angles, both profiles, and a chin-up
+                shot for accurate analysis. Good, even lighting works best. All
+                processing happens in your browser.
               </p>
             </div>
 
