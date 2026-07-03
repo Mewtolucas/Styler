@@ -5,11 +5,14 @@ const menStyleArchetypes = require("./men/styleArchetypes");
 
 const womenHairstyles = require("./women/hairstyles");
 const womenMakeup = require("./women/makeup");
+const womenEyeMakeup = require("./women/eyeMakeup");
 const womenGlasses = require("./women/glasses");
 const womenStyleArchetypes = require("./women/styleArchetypes");
 
 const hairColor = require("./shared/hairColor");
+const skinClassification = require("./shared/skinClassification");
 const skincare = require("./shared/skincare");
+const styleBuilder = require("./shared/styleBuilder");
 const confidence = require("./shared/confidence");
 const posture = require("./shared/posture");
 const lifestyle = require("./shared/lifestyle");
@@ -27,12 +30,15 @@ module.exports = {
   women: {
     hairstyles: womenHairstyles,
     makeup: womenMakeup,
+    eyeMakeup: womenEyeMakeup,
     glasses: womenGlasses,
     styleArchetypes: womenStyleArchetypes,
   },
   shared: {
     hairColor,
+    skinClassification,
     skincare,
+    styleBuilder,
     confidence,
     posture,
     lifestyle,

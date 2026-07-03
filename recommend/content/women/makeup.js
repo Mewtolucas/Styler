@@ -33,19 +33,19 @@ const womenMakeup = {
   toneByUndertone: {
     warm: {
       title: "Warm-Toned Makeup Palette",
-      body: "Foundation and concealer with a yellow or golden base. Bronze, peach, or coral tones for blush and eyeshadow harmonize with warm undertones. Gold-toned metallics in eyeshadow or accessories tend to complement rather than compete with your natural coloring."
+      body: "Foundation and concealer with a yellow or golden base. Bronze, peach, or coral tones for blush and eyeshadow harmonize with warm undertones. Gold-toned metallics in eyeshadow or accessories tend to complement rather than compete with your natural coloring. At deeper shade ranges, look for foundation described as \"deep golden\" or \"deep warm\" rather than assuming warm-toned formulas only exist in lighter ranges — warm undertone spans the full depth spectrum."
     },
     cool: {
       title: "Cool-Toned Makeup Palette",
-      body: "Foundation and concealer with a pink or blue base. Rose, plum, or cool-toned shades for blush and eyeshadow harmonize with cool undertones. Silver-toned metallics tend to complement better than gold."
+      body: "Foundation and concealer with a pink or blue base. Rose, plum, or cool-toned shades for blush and eyeshadow harmonize with cool undertones. Silver-toned metallics tend to complement better than gold. Cool undertone spans the full depth range, from fair-cool to deep-cool."
     },
     neutral: {
       title: "Flexible Makeup Palette",
-      body: "Neutral undertones offer flexibility with both warm and cool tones. A balanced beige foundation base works as a starting point. You can lean warm or cool depending on the look without clashing with your natural coloring."
+      body: "Neutral undertones offer flexibility with both warm and cool tones. A balanced base works as a starting point at any depth. You can lean warm or cool depending on the look without clashing with your natural coloring."
     },
     olive: {
       title: "Olive-Specific Makeup Palette",
-      body: "Olive skin carries a subtle green cast that sits between warm and cool and is often misclassified as either. Foundations labeled purely \"warm\" or \"cool\" can both look slightly off — look for formulas specifically labeled olive or neutral-olive. Test on the jawline in natural daylight rather than indoor lighting, which skews the perceived undertone (warm indoor bulbs make most undertones read warmer than they are)."
+      body: "Olive skin carries a subtle green cast that sits between warm and cool and is often misclassified as either. Foundations labeled purely \"warm\" or \"cool\" can both look slightly off — look for formulas specifically labeled olive or neutral-olive. Test on the jawline in natural daylight rather than indoor lighting, which skews the perceived undertone (warm indoor bulbs make most undertones read warmer than they are). Olive also spans the full depth range — light-olive and deep-olive are both common and distinct from \"olive\" being treated as a single fixed depth."
     }
   },
 

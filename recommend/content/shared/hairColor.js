@@ -1,7 +1,11 @@
 const hairColor = {
+  contrastNote: {
+    title: "Hair-Skin Contrast Is a Style Choice",
+    body: "Undertone drives the color direction (warm vs. cool vs. neutral vs. olive); skin depth affects how much contrast a given hair color creates against the skin. Very high contrast (e.g. very light hair against deep skin, or very dark hair against fair skin) reads as a bolder styling choice — not wrong, just worth recognizing as a deliberate contrast decision rather than a default recommendation."
+  },
   warm: {
     title: "Warm-Toned Hair Colors",
-    body: "Golden brown, honey, copper, and warm black tend to harmonize with warm undertones. If lightening significantly, ashy or cool tones can look flat against warm skin — stay in the warm color family for the most natural result."
+    body: "Golden brown, honey, copper, and warm black tend to harmonize with warm undertones. Ashy or cool tones can look flat against warm skin if lightened significantly — stay in the warm color family for the most natural result."
   },
   cool: {
     title: "Cool-Toned Hair Colors",
