@@ -1,4 +1,102 @@
 const proportionHarmony = {
+  faceSlimming: {
+    round: {
+      title: "Slimming a Round Face",
+      techniques: [
+        {
+          area: "Hair",
+          body: "Height at the crown is the single most effective way to elongate and slim a round face. A pompadour, quiff, or voluminous top draws the eye upward and adds vertical emphasis. Long layers that frame the face below the chin slim the jawline by creating a longer visual line. Avoid blunt cuts at jaw level — they widen the face at its widest point."
+        },
+        {
+          area: "Brows",
+          body: "A defined arch lifts the upper face and adds angular structure that counteracts roundness. Avoid flat, straight brows — they reinforce the horizontal, circular silhouette. The arch creates a peak that breaks the round outline."
+        },
+        {
+          area: "Contouring (Women)",
+          body: "Apply contour along the hollows of the cheeks (sucking in to find the line) and blend upward toward the temple. A matte bronzer under the jawline defines the jaw edge that roundness obscures. Highlight the center of the face — nose bridge, center of forehead, chin — to draw focus to a narrow vertical strip."
+        },
+        {
+          area: "Facial Hair (Men)",
+          body: "A beard with defined angular edges at the jaw creates the jawline that a round face doesn't have. Keep the sides shorter and the chin area slightly longer to elongate. A chin strap or goatee adds vertical length. Avoid wide, bushy beards that add horizontal mass."
+        },
+        {
+          area: "Glasses",
+          body: "Angular, rectangular frames add the straight lines a round face lacks. Cat-eye shapes that sweep upward slim and lift. Frames slightly wider than the face at the cheekbones are fine, but avoid small, round frames that echo the face shape."
+        },
+        {
+          area: "Accessories & Neckline",
+          body: "V-necklines and deep scoop necks elongate the neck and chest area, making the face look slimmer by contrast. Long pendant necklaces add a vertical line. Avoid crew necks and turtlenecks that create a horizontal line right where the jaw meets the neck."
+        },
+        {
+          area: "Photography",
+          body: "Angle the face slightly rather than shooting straight-on — even 15 degrees reduces the visible width. A slightly higher camera angle (camera above eye level, chin tilted down a few degrees) narrows the jaw and emphasizes the cheekbones."
+        }
+      ]
+    },
+    square: {
+      title: "Softening and Slimming a Square Face",
+      techniques: [
+        {
+          area: "Hair",
+          body: "Soft layers around the face soften the jaw's hard angles. Side-swept hair or curtain bangs break up the strong forehead-to-jaw line. Long waves or curls add movement that distracts from angular structure. Avoid blunt, chin-length bobs that emphasize the square jaw, and avoid very sleek, straight styles that highlight every angle."
+        },
+        {
+          area: "Brows",
+          body: "A soft, curved brow shape introduces roundness that counters the angular jaw. Avoid very angular, sharp brow shapes that double down on the square geometry."
+        },
+        {
+          area: "Contouring (Women)",
+          body: "Contour the corners of the jaw (the gonial angle) — this is where the square shape is most visible. Blend a matte bronzer from the earlobe down to the jaw corner and slightly forward. Blush on the apples of the cheeks (round application, not angular) adds softness to the midface."
+        },
+        {
+          area: "Facial Hair (Men)",
+          body: "A beard that rounds slightly at the jaw corners softens the square angle. Keep the chin area a bit longer and round the corners rather than sharpening them. Avoid very squared-off beard shapes that mirror the natural jaw."
+        },
+        {
+          area: "Glasses",
+          body: "Round or oval frames contrast with the angular face and introduce curves. Thin, light frames soften more than thick, bold ones. Cat-eye shapes work well by lifting upward. Avoid boxy, rectangular frames that echo the square jaw."
+        },
+        {
+          area: "Accessories & Neckline",
+          body: "Scoop necks and U-shaped necklines introduce curves below the jaw. Soft scarves and draped necklines add flowing lines. Long, layered necklaces break up the straight jaw-to-chest line."
+        }
+      ]
+    },
+    wide: {
+      title: "Slimming a Wide Face",
+      techniques: [
+        {
+          area: "Hair",
+          body: "Volume at the crown and top elongates a wide face. Center parts create a vertical line down the face that counteracts width. Long hair that falls past the shoulders slims by extending the face's visual length below the jaw. Keep the sides smooth — volume at ear level adds width. Avoid very short crops that expose the full width of the face."
+        },
+        {
+          area: "Brows",
+          body: "A higher arch adds vertical emphasis that combats horizontal width. Brows that are slightly closer together draw the face inward. Avoid very long, extended brows that create a strong horizontal line across the face."
+        },
+        {
+          area: "Contouring (Women)",
+          body: "Contour the outer edges of the face — temples, outer cheeks, and jawline sides. This creates shadow that narrows the visual face perimeter. Highlight a narrow vertical strip down the center (forehead center, nose bridge, chin) to draw focus inward away from the edges."
+        },
+        {
+          area: "Facial Hair (Men)",
+          body: "A longer chin beard with shorter sides elongates the face. Avoid wide sideburns or thick mutton chops that add horizontal mass. A goatee or pointed beard shape adds length at the chin without width."
+        },
+        {
+          area: "Glasses",
+          body: "Frames that are narrower than the widest part of the face make the face appear narrower by contrast. Tall, vertically-oriented frames add height. Dark or bold frames draw attention to the center of the face and away from the edges."
+        },
+        {
+          area: "Accessories & Neckline",
+          body: "Deep V-necklines create a strong downward point that elongates. Long earrings and pendants add vertical lines. Avoid wide boat necks and off-shoulder styles that add horizontal emphasis at the jawline level."
+        },
+        {
+          area: "Photography",
+          body: "Turn the face 20–30 degrees from the camera — this reduces the visible face width significantly. Lighting from slightly to one side (not flat, frontal lighting) creates natural shadow on the far cheek that narrows the face."
+        }
+      ]
+    }
+  },
+
   faceLength: {
     long: {
       title: "Visually Shortening a Long Face",

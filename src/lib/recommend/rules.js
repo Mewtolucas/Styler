@@ -66,10 +66,31 @@ function buildHarmonySections(classification, gender, ageBracket) {
     return true;
   };
 
+  const { faceRatio, facialThirds, eyeSpacing: eyeSpacingLabel, noseLength, noseWidth,
+    lipFullness, lipBalance, lipWidth, browArch, browPosition } = classification;
+
+  // --- Face-slimming (shown first when applicable) ---
+  if (faceShape === "round") addSection("faceSlimming", "round", combinedFilter);
+  else if (faceShape === "square") addSection("faceSlimming", "square", combinedFilter);
+  if (faceRatio === "wide") addSection("faceSlimming", "wide", combinedFilter);
+
+  // --- Face structure proportions ---
+  if (faceRatio === "narrow") addSection("faceRatio", "narrow", combinedFilter);
+  else if (faceRatio === "wide") addSection("faceRatio", "wide", combinedFilter);
+
   if (proportions?.faceShape) {
     const lr = proportions.faceShape.lengthCheekRatio;
     if (lr > 1.5) addSection("faceLength", "long", combinedFilter);
     else if (lr < 1.2) addSection("faceLength", "short", combinedFilter);
+  }
+
+  if (facialThirds && facialThirds !== "balanced") {
+    if (facialThirds.includes("long forehead")) addSection("facialThirds", "longForehead", combinedFilter);
+    if (facialThirds.includes("short forehead")) addSection("facialThirds", "shortForehead", combinedFilter);
+    if (facialThirds.includes("long midface")) addSection("facialThirds", "longMidface", combinedFilter);
+    if (facialThirds.includes("short midface")) addSection("facialThirds", "shortMidface", combinedFilter);
+    if (facialThirds.includes("long lower face")) addSection("facialThirds", "longLowerFace", combinedFilter);
+    if (facialThirds.includes("short lower face")) addSection("facialThirds", "shortLowerFace", combinedFilter);
   }
 
   if (proportions?.faceShape) {
@@ -96,12 +117,34 @@ function buildHarmonySections(classification, gender, ageBracket) {
   if (symmetry === "left-fuller") addSection("symmetry", "leftFuller", combinedFilter);
   else if (symmetry === "right-fuller") addSection("symmetry", "rightFuller", combinedFilter);
 
+  // --- Individual feature proportions ---
   const primaryEye = classification.eyeShape?.includes("-")
     ? classification.eyeShape.split("-")[0]
     : classification.eyeShape;
   const eyeMap = { round: "round", narrow: "narrow", upturned: "upturned", downturned: "downturned", monolid: "monolid" };
   if (eyeMap[primaryEye]) addSection("eyeShape", eyeMap[primaryEye], combinedFilter);
 
+  if (eyeSpacingLabel === "wide-set") addSection("eyeSpacing", "wideSet", combinedFilter);
+  else if (eyeSpacingLabel === "close-set") addSection("eyeSpacing", "closeSet", combinedFilter);
+
+  if (noseLength === "long") addSection("noseProportions", "long", combinedFilter);
+  else if (noseLength === "short") addSection("noseProportions", "short", combinedFilter);
+  if (noseWidth === "wide") addSection("noseProportions", "wide", combinedFilter);
+  else if (noseWidth === "narrow") addSection("noseProportions", "narrow", combinedFilter);
+
+  if (lipFullness === "full") addSection("lipProportions", "full", combinedFilter);
+  else if (lipFullness === "thin") addSection("lipProportions", "thin", combinedFilter);
+  if (lipBalance === "bottom-heavy") addSection("lipProportions", "bottomHeavy", combinedFilter);
+  else if (lipBalance === "top-heavy") addSection("lipProportions", "topHeavy", combinedFilter);
+  if (lipWidth === "wide") addSection("lipProportions", "wide", combinedFilter);
+  else if (lipWidth === "narrow") addSection("lipProportions", "narrow", combinedFilter);
+
+  if (browArch === "high-arched") addSection("browShape", "highArched", combinedFilter);
+  else if (browArch === "flat") addSection("browShape", "flat", combinedFilter);
+  if (browPosition === "high-set") addSection("browShape", "highSet", combinedFilter);
+  else if (browPosition === "low-set") addSection("browShape", "lowSet", combinedFilter);
+
+  // --- Non-face-reliant tips (color, texture, styling) ---
   if (undertone) addSection("skinUndertone", undertone, combinedFilter);
 
   if (textureSignals) {
@@ -118,47 +161,6 @@ function buildHarmonySections(classification, gender, ageBracket) {
   addSection("skinDepth", depthKey, combinedFilter);
 
   addSection("faceShapeOutfits", faceShape, combinedFilter);
-
-  // Face width-to-height ratio
-  const { faceRatio, facialThirds, eyeSpacing: eyeSpacingLabel, noseLength, noseWidth,
-    lipFullness, lipBalance, lipWidth, browArch, browPosition } = classification;
-
-  if (faceRatio === "narrow") addSection("faceRatio", "narrow", combinedFilter);
-  else if (faceRatio === "wide") addSection("faceRatio", "wide", combinedFilter);
-
-  // Facial thirds
-  if (facialThirds && facialThirds !== "balanced") {
-    if (facialThirds.includes("long forehead")) addSection("facialThirds", "longForehead", combinedFilter);
-    if (facialThirds.includes("short forehead")) addSection("facialThirds", "shortForehead", combinedFilter);
-    if (facialThirds.includes("long midface")) addSection("facialThirds", "longMidface", combinedFilter);
-    if (facialThirds.includes("short midface")) addSection("facialThirds", "shortMidface", combinedFilter);
-    if (facialThirds.includes("long lower face")) addSection("facialThirds", "longLowerFace", combinedFilter);
-    if (facialThirds.includes("short lower face")) addSection("facialThirds", "shortLowerFace", combinedFilter);
-  }
-
-  // Eye spacing
-  if (eyeSpacingLabel === "wide-set") addSection("eyeSpacing", "wideSet", combinedFilter);
-  else if (eyeSpacingLabel === "close-set") addSection("eyeSpacing", "closeSet", combinedFilter);
-
-  // Nose proportions
-  if (noseLength === "long") addSection("noseProportions", "long", combinedFilter);
-  else if (noseLength === "short") addSection("noseProportions", "short", combinedFilter);
-  if (noseWidth === "wide") addSection("noseProportions", "wide", combinedFilter);
-  else if (noseWidth === "narrow") addSection("noseProportions", "narrow", combinedFilter);
-
-  // Lip proportions
-  if (lipFullness === "full") addSection("lipProportions", "full", combinedFilter);
-  else if (lipFullness === "thin") addSection("lipProportions", "thin", combinedFilter);
-  if (lipBalance === "bottom-heavy") addSection("lipProportions", "bottomHeavy", combinedFilter);
-  else if (lipBalance === "top-heavy") addSection("lipProportions", "topHeavy", combinedFilter);
-  if (lipWidth === "wide") addSection("lipProportions", "wide", combinedFilter);
-  else if (lipWidth === "narrow") addSection("lipProportions", "narrow", combinedFilter);
-
-  // Brow shape
-  if (browArch === "high-arched") addSection("browShape", "highArched", combinedFilter);
-  else if (browArch === "flat") addSection("browShape", "flat", combinedFilter);
-  if (browPosition === "high-set") addSection("browShape", "highSet", combinedFilter);
-  else if (browPosition === "low-set") addSection("browShape", "lowSet", combinedFilter);
 
   return sections;
 }
