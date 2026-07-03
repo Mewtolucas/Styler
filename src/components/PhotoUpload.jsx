@@ -43,20 +43,48 @@ export default function PhotoUpload({ photos, onPhotoChange, validations }) {
   const [dragOver, setDragOver] = useState(null);
 
   const handleFile = useCallback(
-    (slotKey, file) => {
+    async (slotKey, file) => {
       if (!file || !file.type.startsWith("image/")) return;
-      const url = URL.createObjectURL(file);
-      onPhotoChange(slotKey, url);
+      try {
+        const bitmap = await createImageBitmap(file);
+        const MAX = 1920;
+        let w = bitmap.width;
+        let h = bitmap.height;
+        if (w > MAX || h > MAX) {
+          const scale = MAX / Math.max(w, h);
+          w = Math.round(w * scale);
+          h = Math.round(h * scale);
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(bitmap, 0, 0, w, h);
+        bitmap.close();
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              const url = URL.createObjectURL(blob);
+              onPhotoChange(slotKey, url);
+            }
+          },
+          "image/jpeg",
+          0.92
+        );
+      } catch {
+        const url = URL.createObjectURL(file);
+        onPhotoChange(slotKey, url);
+      }
     },
     [onPhotoChange]
   );
 
   const handleDrop = useCallback(
-    (slotKey, e) => {
+    async (slotKey, e) => {
       e.preventDefault();
       setDragOver(null);
       const file = e.dataTransfer.files[0];
-      handleFile(slotKey, file);
+      await handleFile(slotKey, file);
     },
     [handleFile]
   );

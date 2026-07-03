@@ -10,7 +10,6 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          "face-api": ["@vladmandic/face-api"],
           "mediapipe": ["@mediapipe/tasks-vision"],
         },
       },

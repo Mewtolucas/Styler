@@ -2,14 +2,8 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import PhotoUpload from "./components/PhotoUpload.jsx";
 import ResultsView from "./components/ResultsView.jsx";
 import LandmarkOverlay from "./components/LandmarkOverlay.jsx";
-import {
-  initProfiler,
-  profilePhoto,
-  verifyAllSamePerson,
-  mapLandmarks68to468,
-  convertLandmarks68ForOverlay,
-} from "./lib/profiler/index.js";
-import { detectLandmarks } from "./lib/landmarks.js";
+import { initLandmarker, detectLandmarks } from "./lib/landmarks.js";
+import { validatePhoto } from "./lib/mediapipeValidator.js";
 import { analyzeFace } from "./lib/classify/index.js";
 import { generateRecommendations } from "./lib/recommend/rules.js";
 
@@ -24,11 +18,14 @@ const PHOTO_KEYS = [
   "chinUp",
 ];
 
-const MEDIAPIPE_SLOTS = new Set([
-  "front",
-  "leftThreeQuarter",
-  "rightThreeQuarter",
-]);
+const SLOT_LABELS = {
+  front: "Front",
+  leftThreeQuarter: "Left 3/4",
+  rightThreeQuarter: "Right 3/4",
+  leftProfile: "Left Profile",
+  rightProfile: "Right Profile",
+  chinUp: "Chin Up",
+};
 
 const emptyPhotos = () =>
   Object.fromEntries(PHOTO_KEYS.map((k) => [k, null]));
@@ -46,23 +43,20 @@ export default function App() {
   const [frontLandmarks, setFrontLandmarks] = useState(null);
   const [frontDims, setFrontDims] = useState(null);
   const [profilerReady, setProfilerReady] = useState(false);
-  const [verificationResult, setVerificationResult] = useState(null);
-  const [heritageResult, setHeritageResult] = useState(null);
+  const [confirmSlot, setConfirmSlot] = useState(null);
 
   const imageRefs = useRef({});
-  const descriptors = useRef({});
   const landmarkStore = useRef({});
 
   useEffect(() => {
-    initProfiler()
+    initLandmarker()
       .then(() => setProfilerReady(true))
-      .catch((e) => console.error("Profiler init failed:", e));
+      .catch((e) => console.error("MediaPipe init failed:", e));
   }, []);
 
   const loadImage = (url) =>
     new Promise((resolve, reject) => {
       const img = new Image();
-      img.crossOrigin = "anonymous";
       img.onload = () => resolve(img);
       img.onerror = reject;
       img.src = url;
@@ -80,10 +74,9 @@ export default function App() {
   const handlePhotoChange = useCallback(async (slot, url) => {
     setPhotos((prev) => ({ ...prev, [slot]: url }));
     setValidations((prev) => ({ ...prev, [slot]: null }));
-    setVerificationResult(null);
+    setConfirmSlot(null);
 
     if (!url) {
-      descriptors.current[slot] = null;
       landmarkStore.current[slot] = null;
       return;
     }
@@ -92,78 +85,54 @@ export default function App() {
       const img = await loadImage(url);
       imageRefs.current[slot] = img;
 
-      const profile = await profilePhoto(img, slot);
+      const result = await validatePhoto(img, slot);
 
-      if (!profile.slotValid) {
+      if (result.quality && !result.quality.valid) {
         setValidations((prev) => ({
           ...prev,
-          [slot]: {
-            valid: false,
-            message: profile.message,
-            quality: profile.quality,
-            pose: profile.pose,
-          },
+          [slot]: { valid: false, message: result.message, quality: result.quality },
         }));
-        descriptors.current[slot] = null;
         landmarkStore.current[slot] = null;
         return;
       }
 
-      if (profile.quality && !profile.quality.valid) {
+      if (result.needsConfirmation) {
+        setConfirmSlot(slot);
         setValidations((prev) => ({
           ...prev,
-          [slot]: {
-            valid: false,
-            message: profile.message,
-            quality: profile.quality,
-          },
+          [slot]: { valid: false, message: result.message, pendingConfirmation: true },
         }));
-        descriptors.current[slot] = null;
         landmarkStore.current[slot] = null;
         return;
       }
 
-      descriptors.current[slot] = profile.descriptor;
-      landmarkStore.current[slot] = profile.landmarks68;
-
-      if (slot === "front" && profile.heritage) {
-        setHeritageResult(profile.heritage);
+      if (!result.slotValid) {
+        setValidations((prev) => ({
+          ...prev,
+          [slot]: { valid: false, message: result.message, pose: result.pose },
+        }));
+        landmarkStore.current[slot] = null;
+        return;
       }
 
-      const filledDescriptors = Object.entries(descriptors.current)
-        .filter(([, v]) => v != null)
-        .reduce((obj, [k, v]) => ({ ...obj, [k]: v }), {});
-      const filledCount = Object.keys(filledDescriptors).length;
+      landmarkStore.current[slot] = result.landmarks;
 
-      let verification = null;
-      if (filledCount >= 2) {
-        verification = verifyAllSamePerson(filledDescriptors);
-        setVerificationResult(verification);
+      if (slot === "front" && result.landmarks) {
+        setFrontLandmarks(result.landmarks);
+        const w = img.naturalWidth || img.width;
+        const h = img.naturalHeight || img.height;
+        setFrontDims({ width: w, height: h });
       }
-
-      const accepted = profile.detected === false && profile.slotValid;
 
       setValidations((prev) => ({
         ...prev,
         [slot]: {
           valid: true,
-          accepted,
-          quality: profile.quality,
-          pose: profile.pose,
-          slotClassification: profile.slotClassification,
-          heritage: profile.heritage,
+          quality: result.quality,
+          pose: result.pose,
+          slotClassification: result.slotClassification,
         },
       }));
-
-      if (slot === "front" && profile.landmarks68) {
-        const w = img.naturalWidth || img.width;
-        const h = img.naturalHeight || img.height;
-        const overlayPts = convertLandmarks68ForOverlay(profile.landmarks68, w, h);
-        if (overlayPts) {
-          setFrontLandmarks(overlayPts);
-          setFrontDims({ width: w, height: h });
-        }
-      }
     } catch (e) {
       setValidations((prev) => ({
         ...prev,
@@ -172,11 +141,24 @@ export default function App() {
     }
   }, []);
 
+  const handleConfirmPhoto = useCallback((slot, confirmed) => {
+    setConfirmSlot(null);
+    if (confirmed) {
+      landmarkStore.current[slot] = null;
+      setValidations((prev) => ({
+        ...prev,
+        [slot]: { valid: true, accepted: true, userConfirmed: true },
+      }));
+    } else {
+      setPhotos((prev) => ({ ...prev, [slot]: null }));
+      setValidations((prev) => ({ ...prev, [slot]: null }));
+    }
+  }, []);
+
   const allPhotosValid = PHOTO_KEYS.every(
     (k) => photos[k] && validations[k]?.valid
   );
-  const samePerson = !verificationResult || verificationResult.same;
-  const canAnalyze = allPhotosValid && samePerson && gender && ageBracket;
+  const canAnalyze = allPhotosValid && gender && ageBracket;
 
   const runAnalysis = async () => {
     setStep(STEPS.ANALYZING);
@@ -190,32 +172,21 @@ export default function App() {
         imgs[key] = imageRefs.current[key] || (await loadImage(photos[key]));
       }
 
-      // Use MediaPipe 468-point for front and 3/4 views (high precision)
       const mpResults = {};
       for (const key of PHOTO_KEYS) {
-        if (MEDIAPIPE_SLOTS.has(key)) {
-          setProgress(`Detecting landmarks: ${key}...`);
-          mpResults[key] = await detectLandmarks(imgs[key], key);
+        setProgress(`Detecting landmarks: ${key}...`);
+        const stored = landmarkStore.current[key];
+        if (stored) {
+          mpResults[key] = { landmarks: stored, noDetection: false };
+        } else {
+          const res = await detectLandmarks(imgs[key], key);
+          mpResults[key] = res || { landmarks: null, noDetection: true };
         }
       }
 
       if (!mpResults.front || mpResults.front.noDetection) {
         throw new Error("Could not detect face in front photo during detailed analysis.");
       }
-
-      // For profile and chin-up, use face-api 68→468 adapter (handles extreme angles)
-      const faceApiLandmarks = (slot) => {
-        const lm68 = landmarkStore.current[slot];
-        if (!lm68) return null;
-        const img = imgs[slot];
-        const sw = img.naturalWidth || img.width;
-        const sh = img.naturalHeight || img.height;
-        return mapLandmarks68to468(lm68, sw, sh);
-      };
-
-      const leftProfileLm = faceApiLandmarks("leftProfile");
-      const rightProfileLm = faceApiLandmarks("rightProfile");
-      const chinUpLm = faceApiLandmarks("chinUp");
 
       setProgress("Classifying features...");
 
@@ -229,16 +200,12 @@ export default function App() {
         frontImgData,
         w,
         h,
-        leftProfileLm,
-        rightProfileLm,
+        mpResults.leftProfile?.landmarks || null,
+        mpResults.rightProfile?.landmarks || null,
         mpResults.leftThreeQuarter?.landmarks || null,
         mpResults.rightThreeQuarter?.landmarks || null,
-        chinUpLm
+        mpResults.chinUp?.landmarks || null
       );
-
-      if (heritageResult) {
-        result.heritage = heritageResult;
-      }
 
       setFrontLandmarks(mpResults.front.landmarks);
       setFrontDims({ width: w, height: h });
@@ -265,10 +232,8 @@ export default function App() {
     setFrontLandmarks(null);
     setFrontDims(null);
     setError(null);
-    setVerificationResult(null);
-    setHeritageResult(null);
+    setConfirmSlot(null);
     imageRefs.current = {};
-    descriptors.current = {};
     landmarkStore.current = {};
     setStep(STEPS.SETUP);
   };
@@ -419,22 +384,31 @@ export default function App() {
               validations={validations}
             />
 
-            {verificationResult && !verificationResult.same && (
-              <div className="max-w-lg mx-auto bg-red-50 border border-red-200 rounded-sm p-4 text-center">
-                <p className="text-sm text-red-700 font-medium">
-                  Identity mismatch detected
-                </p>
-                <p className="text-xs text-red-600 mt-1">
-                  {verificationResult.message}
-                </p>
-              </div>
-            )}
-
-            {verificationResult?.same && Object.keys(descriptors.current).filter(k => descriptors.current[k]).length >= 2 && (
-              <div className="max-w-lg mx-auto text-center">
-                <p className="text-xs text-success">
-                  Identity verified — all photos match the same person.
-                </p>
+            {confirmSlot && photos[confirmSlot] && (
+              <div className="max-w-lg mx-auto bg-warm-white border border-stone/40 rounded-sm p-5 space-y-4">
+                <div className="text-center">
+                  <p className="text-sm font-medium text-ink">
+                    Confirm {SLOT_LABELS[confirmSlot]} photo
+                  </p>
+                  <p className="text-xs text-clay mt-1">
+                    We couldn't auto-detect a face in this photo. Is it a clear,
+                    well-lit {SLOT_LABELS[confirmSlot].toLowerCase()} shot?
+                  </p>
+                </div>
+                <div className="flex justify-center gap-3">
+                  <button
+                    onClick={() => handleConfirmPhoto(confirmSlot, true)}
+                    className="px-6 py-2 bg-ink text-paper text-sm font-medium rounded-sm hover:bg-charcoal transition-colors"
+                  >
+                    Yes, use this photo
+                  </button>
+                  <button
+                    onClick={() => handleConfirmPhoto(confirmSlot, false)}
+                    className="px-6 py-2 border border-stone text-charcoal text-sm font-medium rounded-sm hover:border-clay transition-colors"
+                  >
+                    Retake
+                  </button>
+                </div>
               </div>
             )}
 
