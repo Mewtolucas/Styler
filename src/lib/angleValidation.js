@@ -8,12 +8,39 @@ function extractYawPitch(matrix) {
   return { yaw, pitch };
 }
 
-export function validateAngle(slot, matrix, landmarks) {
+export function validateAngle(slot, matrix, landmarks, noDetection) {
+  if (noDetection) {
+    return validateNoDetection(slot);
+  }
   if (matrix) {
     const { yaw, pitch } = extractYawPitch(matrix);
     return validateFromPose(slot, yaw, pitch);
   }
   return validateFromLandmarks(slot, landmarks);
+}
+
+function validateNoDetection(slot) {
+  switch (slot) {
+    case "leftProfile":
+    case "rightProfile":
+      return {
+        valid: true,
+        message: "Face not fully detected at this angle — accepted as profile.",
+        accepted: true,
+      };
+    case "chinUp":
+      return {
+        valid: true,
+        message: "Face not fully detected at this angle — accepted as chin-up.",
+        accepted: true,
+      };
+    default:
+      return {
+        valid: false,
+        message:
+          "No face detected. Make sure your face is clearly visible and well-lit.",
+      };
+  }
 }
 
 function validateFromPose(slot, yaw, pitch) {
@@ -36,14 +63,14 @@ function validateFromPose(slot, yaw, pitch) {
       };
 
     case "leftThreeQuarter":
-      if (yaw > 25 && yaw < 65 && absPitch < 18) return { valid: true };
-      if (yaw <= 25)
+      if (absYaw > 20 && absYaw < 65 && absPitch < 20) return { valid: true };
+      if (absYaw <= 20)
         return {
           valid: false,
           message:
             "Turn your head more to the left — aim for a 3/4 angle with both eyes still visible.",
         };
-      if (yaw >= 65)
+      if (absYaw >= 65)
         return {
           valid: false,
           message:
@@ -56,14 +83,14 @@ function validateFromPose(slot, yaw, pitch) {
       };
 
     case "rightThreeQuarter":
-      if (yaw < -25 && yaw > -65 && absPitch < 18) return { valid: true };
-      if (yaw >= -25)
+      if (absYaw > 20 && absYaw < 65 && absPitch < 20) return { valid: true };
+      if (absYaw <= 20)
         return {
           valid: false,
           message:
             "Turn your head more to the right — aim for a 3/4 angle with both eyes still visible.",
         };
-      if (yaw <= -65)
+      if (absYaw >= 65)
         return {
           valid: false,
           message:
@@ -76,26 +103,13 @@ function validateFromPose(slot, yaw, pitch) {
       };
 
     case "leftProfile":
-      if (yaw > 65 && absPitch < 18) return { valid: true };
-      if (yaw <= 65)
-        return {
-          valid: false,
-          message:
-            "Turn your head further left to show your full left profile.",
-        };
-      return {
-        valid: false,
-        message:
-          "Keep your chin level while showing your profile — your head is tilted.",
-      };
-
     case "rightProfile":
-      if (yaw < -65 && absPitch < 18) return { valid: true };
-      if (yaw >= -65)
+      if (absYaw > 45 && absPitch < 25) return { valid: true };
+      if (absYaw <= 45)
         return {
           valid: false,
           message:
-            "Turn your head further right to show your full right profile.",
+            "Turn your head further to show your profile — we need a side view of your face.",
         };
       return {
         valid: false,
@@ -104,18 +118,12 @@ function validateFromPose(slot, yaw, pitch) {
       };
 
     case "chinUp":
-      if (pitch < -10 && pitch > -45 && absYaw < 18) return { valid: true };
-      if (pitch >= -10)
+      if (absPitch > 8 && absYaw < 25) return { valid: true };
+      if (absPitch <= 8)
         return {
           valid: false,
           message:
             "Tilt your chin up more — we need to see the underside of your jaw slightly.",
-        };
-      if (pitch <= -45)
-        return {
-          valid: false,
-          message:
-            "You've tilted too far back — just a slight chin-up angle is needed.",
         };
       return {
         valid: false,
@@ -156,40 +164,14 @@ function validateFromLandmarks(slot, landmarks) {
       };
 
     case "leftThreeQuarter":
-      if (noseCenterRatio > 0.15 && noseCenterRatio < 0.7 && eyeSpread > 0.04 && noseToLeftEye < noseToRightEye)
-        return { valid: true };
-      if (noseCenterRatio <= 0.15)
-        return {
-          valid: false,
-          message:
-            "Turn your head more to the left for a 3/4 angle — both eyes should still be visible.",
-        };
-      if (noseToLeftEye >= noseToRightEye)
-        return {
-          valid: false,
-          message:
-            "This looks like a right turn — turn to the left instead for this slot.",
-        };
-      return {
-        valid: false,
-        message:
-          "You've turned too far — turn back slightly so both eyes are visible.",
-      };
-
     case "rightThreeQuarter":
-      if (noseCenterRatio > 0.15 && noseCenterRatio < 0.7 && eyeSpread > 0.04 && noseToRightEye < noseToLeftEye)
+      if (noseCenterRatio > 0.12 && eyeSpread > 0.03)
         return { valid: true };
-      if (noseCenterRatio <= 0.15)
+      if (noseCenterRatio <= 0.12)
         return {
           valid: false,
           message:
-            "Turn your head more to the right for a 3/4 angle — both eyes should still be visible.",
-        };
-      if (noseToRightEye >= noseToLeftEye)
-        return {
-          valid: false,
-          message:
-            "This looks like a left turn — turn to the right instead for this slot.",
+            "Turn your head more for a 3/4 angle — both eyes should still be visible.",
         };
       return {
         valid: false,
@@ -198,54 +180,27 @@ function validateFromLandmarks(slot, landmarks) {
       };
 
     case "leftProfile":
-      if ((eyeSpread < 0.06 || noseCenterRatio > 0.6) && noseToLeftEye < noseToRightEye)
-        return { valid: true };
-      if (noseToLeftEye >= noseToRightEye)
-        return {
-          valid: false,
-          message:
-            "This looks like a right profile — turn to show your left side.",
-        };
-      return {
-        valid: false,
-        message:
-          "Turn your head further left to show your full left profile.",
-      };
-
     case "rightProfile":
-      if ((eyeSpread < 0.06 || noseCenterRatio > 0.6) && noseToRightEye < noseToLeftEye)
+      if (eyeSpread < 0.08 || noseCenterRatio > 0.4)
         return { valid: true };
-      if (noseToRightEye >= noseToLeftEye)
-        return {
-          valid: false,
-          message:
-            "This looks like a left profile — turn to show your right side.",
-        };
       return {
         valid: false,
         message:
-          "Turn your head further right to show your full right profile.",
+          "Turn your head further to show your full profile from the side.",
       };
 
     case "chinUp": {
       const chin = landmarks[152];
       const forehead = landmarks[10];
       const faceHeight = Math.abs(forehead.y - chin.y);
-      const noseY = noseTip.y;
-      const midY = (forehead.y + chin.y) / 2;
-      const noseRelative = (noseY - midY) / (faceHeight || 0.01);
-      if (noseRelative < -0.05 && noseCenterRatio < 0.35)
+      if (faceHeight < 0.15)
         return { valid: true };
-      if (noseCenterRatio >= 0.35)
-        return {
-          valid: false,
-          message:
-            "Face the camera while tilting your chin up — your head is turned to the side.",
-        };
+      if (noseCenterRatio < 0.35)
+        return { valid: true };
       return {
         valid: false,
         message:
-          "Tilt your chin up slightly more — we need to see the underside of your jaw.",
+          "Face the camera while tilting your chin up — your head is turned to the side.",
       };
     }
 

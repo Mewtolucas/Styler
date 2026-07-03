@@ -17,6 +17,8 @@ export async function initLandmarker() {
     },
     runningMode: "IMAGE",
     numFaces: 1,
+    minFaceDetectionConfidence: 0.3,
+    minFacePresenceConfidence: 0.3,
     outputFaceBlendshapes: false,
     outputFacialTransformationMatrixes: true,
   });
@@ -24,17 +26,27 @@ export async function initLandmarker() {
   return landmarker;
 }
 
-export async function detectLandmarks(imageElement) {
+const EXTREME_ANGLE_SLOTS = new Set([
+  "leftProfile",
+  "rightProfile",
+  "chinUp",
+]);
+
+export async function detectLandmarks(imageElement, slot) {
   const lm = await initLandmarker();
   const result = lm.detect(imageElement);
 
   if (!result.faceLandmarks || result.faceLandmarks.length === 0) {
+    if (EXTREME_ANGLE_SLOTS.has(slot)) {
+      return { landmarks: null, matrix: null, noDetection: true };
+    }
     return null;
   }
 
   return {
     landmarks: result.faceLandmarks[0],
     matrix: result.facialTransformationMatrixes?.[0] ?? null,
+    noDetection: false,
   };
 }
 

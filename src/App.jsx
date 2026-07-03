@@ -70,7 +70,7 @@ export default function App() {
         return;
       }
 
-      const result = await detectLandmarks(img);
+      const result = await detectLandmarks(img, slot);
       if (!result) {
         setValidations((prev) => ({
           ...prev,
@@ -79,7 +79,7 @@ export default function App() {
         return;
       }
 
-      const angleCheck = validateAngle(slot, result.matrix, result.landmarks);
+      const angleCheck = validateAngle(slot, result.matrix, result.landmarks, result.noDetection);
       setValidations((prev) => ({ ...prev, [slot]: angleCheck }));
 
       if (slot === "front" && angleCheck.valid) {
@@ -114,7 +114,7 @@ export default function App() {
       const results = {};
       const detections = await Promise.all(
         PHOTO_KEYS.map(async (key) => {
-          const r = await detectLandmarks(imgs[key]);
+          const r = await detectLandmarks(imgs[key], key);
           return [key, r];
         })
       );
@@ -122,7 +122,7 @@ export default function App() {
         results[key] = r;
       }
 
-      if (!results.front) {
+      if (!results.front || results.front.noDetection) {
         throw new Error("Could not detect face in front photo.");
       }
 

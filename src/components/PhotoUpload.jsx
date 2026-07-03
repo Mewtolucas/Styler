@@ -138,7 +138,10 @@ export default function PhotoUpload({ photos, onPhotoChange, validations }) {
                 {validation.message}
               </p>
             )}
-            {validation?.valid && (
+            {validation?.valid && validation?.accepted && (
+              <p className="text-xs text-clay">Accepted</p>
+            )}
+            {validation?.valid && !validation?.accepted && (
               <p className="text-xs text-success">Ready</p>
             )}
           </div>
