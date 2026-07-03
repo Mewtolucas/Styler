@@ -127,4 +127,4 @@ const menHaircuts = {
   }
 };
 
-module.exports = menHaircuts;
+export default menHaircuts;

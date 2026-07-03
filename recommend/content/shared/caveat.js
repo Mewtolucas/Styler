@@ -5,4 +5,4 @@ const caveat = {
   }
 };
 
-module.exports = caveat;
+export default caveat;

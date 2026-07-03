@@ -46,4 +46,4 @@ const womenEyeMakeup = {
   }
 };
 
-module.exports = womenEyeMakeup;
+export default womenEyeMakeup;

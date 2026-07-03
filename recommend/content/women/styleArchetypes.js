@@ -13,4 +13,4 @@ const womenStyleArchetypes = {
   }
 };
 
-module.exports = womenStyleArchetypes;
+export default womenStyleArchetypes;

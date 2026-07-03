@@ -20,4 +20,4 @@ const skinClassification = {
   }
 };
 
-module.exports = skinClassification;
+export default skinClassification;

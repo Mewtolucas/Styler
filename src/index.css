@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+@theme {
+  /* Palette: editorial grooming-magazine feel */
+  --color-ink: #1a1a1a;
+  --color-paper: #f7f5f0;
+  --color-stone: #d4cfc6;
+  --color-clay: #a89b8c;
+  --color-sage: #7a8a6e;
+  --color-sage-light: #e8ece4;
+  --color-charcoal: #3d3d3d;
+  --color-warm-white: #faf8f5;
+  --color-error: #b44d3e;
+  --color-amber: #c4953a;
+  --color-success: #5a7a4e;
+
+  /* Type scale */
+  --font-display: "Playfair Display", Georgia, serif;
+  --font-body: "DM Sans", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+@layer base {
+  @font-face {
+    font-family: "Playfair Display";
+    font-style: normal;
+    font-weight: 400 900;
+    font-display: swap;
+    src: url("https://fonts.gstatic.com/s/playfairdisplay/v37/nuFvD-vYSZviVYUb_rj3ij__anPXJzDwcbmjWBN2PKdFvXDTbtPY_Q.woff2")
+      format("woff2");
+  }
+  @font-face {
+    font-family: "DM Sans";
+    font-style: normal;
+    font-weight: 300 700;
+    font-display: swap;
+    src: url("https://fonts.gstatic.com/s/dmsans/v15/rP2tp2ywxg089UriI5-g4vlH9VoD8CmcqZG40F9JadbnoEwAkJxhTmH3.woff2")
+      format("woff2");
+  }
+
+  html {
+    font-family: var(--font-body);
+    color: var(--color-ink);
+    background: var(--color-paper);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+}

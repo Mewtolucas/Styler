@@ -13,4 +13,4 @@ const menStyleArchetypes = {
   }
 };
 
-module.exports = menStyleArchetypes;
+export default menStyleArchetypes;

@@ -53,4 +53,4 @@ const skincare = {
   }
 };
 
-module.exports = skincare;
+export default skincare;

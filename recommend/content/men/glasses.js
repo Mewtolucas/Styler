@@ -33,4 +33,4 @@ const menGlasses = {
   }
 };
 
-module.exports = menGlasses;
+export default menGlasses;

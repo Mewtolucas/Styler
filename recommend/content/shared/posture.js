@@ -17,4 +17,4 @@ const posture = {
   }
 };
 
-module.exports = posture;
+export default posture;

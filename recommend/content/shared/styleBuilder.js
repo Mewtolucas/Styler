@@ -33,4 +33,4 @@ const styleBuilder = {
   }
 };
 
-module.exports = styleBuilder;
+export default styleBuilder;

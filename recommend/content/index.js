@@ -1,26 +1,26 @@
-const menHaircuts = require("./men/haircuts");
-const menFacialHair = require("./men/facialHair");
-const menGlasses = require("./men/glasses");
-const menStyleArchetypes = require("./men/styleArchetypes");
+import menHaircuts from "./men/haircuts.js";
+import menFacialHair from "./men/facialHair.js";
+import menGlasses from "./men/glasses.js";
+import menStyleArchetypes from "./men/styleArchetypes.js";
 
-const womenHairstyles = require("./women/hairstyles");
-const womenMakeup = require("./women/makeup");
-const womenEyeMakeup = require("./women/eyeMakeup");
-const womenGlasses = require("./women/glasses");
-const womenStyleArchetypes = require("./women/styleArchetypes");
+import womenHairstyles from "./women/hairstyles.js";
+import womenMakeup from "./women/makeup.js";
+import womenEyeMakeup from "./women/eyeMakeup.js";
+import womenGlasses from "./women/glasses.js";
+import womenStyleArchetypes from "./women/styleArchetypes.js";
 
-const hairColor = require("./shared/hairColor");
-const skinClassification = require("./shared/skinClassification");
-const skincare = require("./shared/skincare");
-const styleBuilder = require("./shared/styleBuilder");
-const confidence = require("./shared/confidence");
-const posture = require("./shared/posture");
-const lifestyle = require("./shared/lifestyle");
-const caveat = require("./shared/caveat");
+import hairColor from "./shared/hairColor.js";
+import skinClassification from "./shared/skinClassification.js";
+import skincare from "./shared/skincare.js";
+import styleBuilder from "./shared/styleBuilder.js";
+import confidence from "./shared/confidence.js";
+import posture from "./shared/posture.js";
+import lifestyle from "./shared/lifestyle.js";
+import caveat from "./shared/caveat.js";
 
-const measurements = require("./reference/measurements");
+import measurements from "./reference/measurements.js";
 
-module.exports = {
+export default {
   men: {
     haircuts: menHaircuts,
     facialHair: menFacialHair,

@@ -17,4 +17,4 @@ const lifestyle = {
   }
 };
 
-module.exports = lifestyle;
+export default lifestyle;

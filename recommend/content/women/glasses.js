@@ -33,4 +33,4 @@ const womenGlasses = {
   }
 };
 
-module.exports = womenGlasses;
+export default womenGlasses;

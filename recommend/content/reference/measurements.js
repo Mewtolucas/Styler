@@ -120,4 +120,4 @@ const measurements = {
   }
 };
 
-module.exports = measurements;
+export default measurements;

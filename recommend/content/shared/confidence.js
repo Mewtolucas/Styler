@@ -25,4 +25,4 @@ const confidence = {
   }
 };
 
-module.exports = confidence;
+export default confidence;

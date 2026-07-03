@@ -76,4 +76,4 @@ const menFacialHair = {
   }
 };
 
-module.exports = menFacialHair;
+export default menFacialHair;

@@ -127,4 +127,4 @@ const womenHairstyles = {
   }
 };
 
-module.exports = womenHairstyles;
+export default womenHairstyles;

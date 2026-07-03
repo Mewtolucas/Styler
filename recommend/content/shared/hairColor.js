@@ -21,4 +21,4 @@ const hairColor = {
   }
 };
 
-module.exports = hairColor;
+export default hairColor;
