@@ -1,9 +1,9 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import PhotoUpload from "./components/PhotoUpload.jsx";
 import ResultsView from "./components/ResultsView.jsx";
 import LandmarkOverlay from "./components/LandmarkOverlay.jsx";
+import { initProfiler, profilePhoto, verifyAllSamePerson } from "./lib/profiler/index.js";
 import { detectLandmarks } from "./lib/landmarks.js";
-import { validateAngle, checkPhotoQuality } from "./lib/angleValidation.js";
 import { analyzeFace } from "./lib/classify/index.js";
 import { generateRecommendations } from "./lib/recommend/rules.js";
 
@@ -33,8 +33,18 @@ export default function App() {
   const [progress, setProgress] = useState("");
   const [frontLandmarks, setFrontLandmarks] = useState(null);
   const [frontDims, setFrontDims] = useState(null);
+  const [profilerReady, setProfilerReady] = useState(false);
+  const [verificationResult, setVerificationResult] = useState(null);
+  const [heritageResult, setHeritageResult] = useState(null);
 
   const imageRefs = useRef({});
+  const descriptors = useRef({});
+
+  useEffect(() => {
+    initProfiler()
+      .then(() => setProfilerReady(true))
+      .catch((e) => console.error("Profiler init failed:", e));
+  }, []);
 
   const loadImage = (url) =>
     new Promise((resolve, reject) => {
@@ -57,34 +67,86 @@ export default function App() {
   const handlePhotoChange = useCallback(async (slot, url) => {
     setPhotos((prev) => ({ ...prev, [slot]: url }));
     setValidations((prev) => ({ ...prev, [slot]: null }));
+    setVerificationResult(null);
 
-    if (!url) return;
+    if (!url) {
+      descriptors.current[slot] = null;
+      return;
+    }
 
     try {
       const img = await loadImage(url);
       imageRefs.current[slot] = img;
 
-      const quality = checkPhotoQuality(img);
-      if (!quality.valid) {
-        setValidations((prev) => ({ ...prev, [slot]: quality }));
-        return;
-      }
+      const profile = await profilePhoto(img, slot);
 
-      const result = await detectLandmarks(img, slot);
-      if (!result) {
+      if (!profile.slotValid) {
         setValidations((prev) => ({
           ...prev,
-          [slot]: { valid: false, message: "No face detected. Make sure your face is clearly visible and well-lit." },
+          [slot]: {
+            valid: false,
+            message: profile.message,
+            quality: profile.quality,
+            pose: profile.pose,
+          },
         }));
+        descriptors.current[slot] = null;
         return;
       }
 
-      const angleCheck = validateAngle(slot, result.matrix, result.landmarks, result.noDetection);
-      setValidations((prev) => ({ ...prev, [slot]: angleCheck }));
+      if (profile.quality && !profile.quality.valid) {
+        setValidations((prev) => ({
+          ...prev,
+          [slot]: {
+            valid: false,
+            message: profile.message,
+            quality: profile.quality,
+          },
+        }));
+        descriptors.current[slot] = null;
+        return;
+      }
 
-      if (slot === "front" && angleCheck.valid) {
-        setFrontLandmarks(result.landmarks);
-        setFrontDims({ width: img.naturalWidth || img.width, height: img.naturalHeight || img.height });
+      descriptors.current[slot] = profile.descriptor;
+
+      if (slot === "front" && profile.heritage) {
+        setHeritageResult(profile.heritage);
+      }
+
+      const filledDescriptors = Object.entries(descriptors.current)
+        .filter(([, v]) => v != null)
+        .reduce((obj, [k, v]) => ({ ...obj, [k]: v }), {});
+      const filledCount = Object.keys(filledDescriptors).length;
+
+      let verification = null;
+      if (filledCount >= 2) {
+        verification = verifyAllSamePerson(filledDescriptors);
+        setVerificationResult(verification);
+      }
+
+      const accepted = profile.detected === false && profile.slotValid;
+
+      setValidations((prev) => ({
+        ...prev,
+        [slot]: {
+          valid: true,
+          accepted,
+          quality: profile.quality,
+          pose: profile.pose,
+          slotClassification: profile.slotClassification,
+          heritage: profile.heritage,
+        },
+      }));
+
+      if (slot === "front" && profile.detected) {
+        const mpResult = await detectLandmarks(img, slot);
+        if (mpResult && !mpResult.noDetection) {
+          setFrontLandmarks(mpResult.landmarks);
+          setFrontDims({
+            width: img.naturalWidth || img.width,
+            height: img.naturalHeight || img.height,
+          });
+        }
       }
     } catch (e) {
       setValidations((prev) => ({
@@ -94,35 +156,31 @@ export default function App() {
     }
   }, []);
 
-  const canAnalyze =
-    PHOTO_KEYS.every((k) => photos[k] && validations[k]?.valid) &&
-    gender &&
-    ageBracket;
+  const allPhotosValid = PHOTO_KEYS.every(
+    (k) => photos[k] && validations[k]?.valid
+  );
+  const samePerson = !verificationResult || verificationResult.same;
+  const canAnalyze = allPhotosValid && samePerson && gender && ageBracket;
 
   const runAnalysis = async () => {
     setStep(STEPS.ANALYZING);
     setError(null);
 
     try {
-      setProgress("Detecting landmarks across all photos...");
+      setProgress("Running detailed landmark detection...");
 
       const imgs = {};
       for (const key of PHOTO_KEYS) {
         imgs[key] = imageRefs.current[key] || (await loadImage(photos[key]));
       }
 
-      const results = {};
-      const detections = await Promise.all(
-        PHOTO_KEYS.map(async (key) => {
-          const r = await detectLandmarks(imgs[key], key);
-          return [key, r];
-        })
-      );
-      for (const [key, r] of detections) {
-        results[key] = r;
+      const mpResults = {};
+      for (const key of PHOTO_KEYS) {
+        const r = await detectLandmarks(imgs[key], key);
+        mpResults[key] = r;
       }
 
-      if (!results.front || results.front.noDetection) {
+      if (!mpResults.front || mpResults.front.noDetection) {
         throw new Error("Could not detect face in front photo.");
       }
 
@@ -134,18 +192,22 @@ export default function App() {
       const h = frontImg.naturalHeight || frontImg.height;
 
       const result = analyzeFace(
-        results.front.landmarks,
+        mpResults.front.landmarks,
         frontImgData,
         w,
         h,
-        results.leftProfile?.landmarks || null,
-        results.rightProfile?.landmarks || null,
-        results.leftThreeQuarter?.landmarks || null,
-        results.rightThreeQuarter?.landmarks || null,
-        results.chinUp?.landmarks || null
+        mpResults.leftProfile?.landmarks || null,
+        mpResults.rightProfile?.landmarks || null,
+        mpResults.leftThreeQuarter?.landmarks || null,
+        mpResults.rightThreeQuarter?.landmarks || null,
+        mpResults.chinUp?.landmarks || null
       );
 
-      setFrontLandmarks(results.front.landmarks);
+      if (heritageResult) {
+        result.heritage = heritageResult;
+      }
+
+      setFrontLandmarks(mpResults.front.landmarks);
       setFrontDims({ width: w, height: h });
 
       setProgress("Generating recommendations...");
@@ -170,7 +232,10 @@ export default function App() {
     setFrontLandmarks(null);
     setFrontDims(null);
     setError(null);
+    setVerificationResult(null);
+    setHeritageResult(null);
     imageRefs.current = {};
+    descriptors.current = {};
     setStep(STEPS.SETUP);
   };
 
@@ -217,6 +282,9 @@ export default function App() {
                 I confirm I am 18 or older
               </button>
             </div>
+            {!profilerReady && (
+              <p className="text-xs text-clay">Loading face detection models...</p>
+            )}
           </div>
         )}
 
@@ -316,6 +384,25 @@ export default function App() {
               onPhotoChange={handlePhotoChange}
               validations={validations}
             />
+
+            {verificationResult && !verificationResult.same && (
+              <div className="max-w-lg mx-auto bg-red-50 border border-red-200 rounded-sm p-4 text-center">
+                <p className="text-sm text-red-700 font-medium">
+                  Identity mismatch detected
+                </p>
+                <p className="text-xs text-red-600 mt-1">
+                  {verificationResult.message}
+                </p>
+              </div>
+            )}
+
+            {verificationResult?.same && Object.keys(descriptors.current).filter(k => descriptors.current[k]).length >= 2 && (
+              <div className="max-w-lg mx-auto text-center">
+                <p className="text-xs text-success">
+                  Identity verified — all photos match the same person.
+                </p>
+              </div>
+            )}
 
             {error && (
               <p className="text-sm text-error text-center">{error}</p>

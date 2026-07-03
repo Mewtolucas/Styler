@@ -5,6 +5,17 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineConfig({
   base: "/Styler/",
   plugins: [react(), tailwindcss()],
+  build: {
+    chunkSizeWarningLimit: 1500,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          "face-api": ["@vladmandic/face-api"],
+          "mediapipe": ["@mediapipe/tasks-vision"],
+        },
+      },
+    },
+  },
   server: {
     host: "0.0.0.0",
     port: 5173,
