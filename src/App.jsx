@@ -2,8 +2,13 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import PhotoUpload from "./components/PhotoUpload.jsx";
 import ResultsView from "./components/ResultsView.jsx";
 import LandmarkOverlay from "./components/LandmarkOverlay.jsx";
-import { initProfiler, profilePhoto, verifyAllSamePerson } from "./lib/profiler/index.js";
-import { detectLandmarks } from "./lib/landmarks.js";
+import {
+  initProfiler,
+  profilePhoto,
+  verifyAllSamePerson,
+  mapLandmarks68to468,
+  convertLandmarks68ForOverlay,
+} from "./lib/profiler/index.js";
 import { analyzeFace } from "./lib/classify/index.js";
 import { generateRecommendations } from "./lib/recommend/rules.js";
 
@@ -39,6 +44,7 @@ export default function App() {
 
   const imageRefs = useRef({});
   const descriptors = useRef({});
+  const landmarkStore = useRef({});
 
   useEffect(() => {
     initProfiler()
@@ -71,6 +77,7 @@ export default function App() {
 
     if (!url) {
       descriptors.current[slot] = null;
+      landmarkStore.current[slot] = null;
       return;
     }
 
@@ -91,6 +98,7 @@ export default function App() {
           },
         }));
         descriptors.current[slot] = null;
+        landmarkStore.current[slot] = null;
         return;
       }
 
@@ -104,10 +112,12 @@ export default function App() {
           },
         }));
         descriptors.current[slot] = null;
+        landmarkStore.current[slot] = null;
         return;
       }
 
       descriptors.current[slot] = profile.descriptor;
+      landmarkStore.current[slot] = profile.landmarks68;
 
       if (slot === "front" && profile.heritage) {
         setHeritageResult(profile.heritage);
@@ -138,14 +148,13 @@ export default function App() {
         },
       }));
 
-      if (slot === "front" && profile.detected) {
-        const mpResult = await detectLandmarks(img, slot);
-        if (mpResult && !mpResult.noDetection) {
-          setFrontLandmarks(mpResult.landmarks);
-          setFrontDims({
-            width: img.naturalWidth || img.width,
-            height: img.naturalHeight || img.height,
-          });
+      if (slot === "front" && profile.landmarks68) {
+        const w = img.naturalWidth || img.width;
+        const h = img.naturalHeight || img.height;
+        const overlayPts = convertLandmarks68ForOverlay(profile.landmarks68, w, h);
+        if (overlayPts) {
+          setFrontLandmarks(overlayPts);
+          setFrontDims({ width: w, height: h });
         }
       }
     } catch (e) {
@@ -167,48 +176,64 @@ export default function App() {
     setError(null);
 
     try {
-      setProgress("Running detailed landmark detection...");
+      setProgress("Preparing face data...");
 
-      const imgs = {};
-      for (const key of PHOTO_KEYS) {
-        imgs[key] = imageRefs.current[key] || (await loadImage(photos[key]));
+      const frontLm68 = landmarkStore.current.front;
+      if (!frontLm68) {
+        throw new Error("Front photo landmarks not available. Please re-upload your front photo.");
       }
 
-      const mpResults = {};
-      for (const key of PHOTO_KEYS) {
-        const r = await detectLandmarks(imgs[key], key);
-        mpResults[key] = r;
-      }
-
-      if (!mpResults.front || mpResults.front.noDetection) {
-        throw new Error("Could not detect face in front photo.");
-      }
-
-      setProgress("Classifying features...");
-
-      const frontImg = imgs.front;
-      const frontImgData = getImageData(frontImg);
+      const frontImg = imageRefs.current.front;
       const w = frontImg.naturalWidth || frontImg.width;
       const h = frontImg.naturalHeight || frontImg.height;
 
+      setProgress("Mapping landmarks for classification...");
+
+      const frontMapped = mapLandmarks68to468(frontLm68, w, h);
+      if (!frontMapped) {
+        throw new Error("Could not process front photo landmarks.");
+      }
+
+      const mapSlot = (slot) => {
+        const lm = landmarkStore.current[slot];
+        if (!lm) return null;
+        const img = imageRefs.current[slot];
+        const sw = img.naturalWidth || img.width;
+        const sh = img.naturalHeight || img.height;
+        return mapLandmarks68to468(lm, sw, sh);
+      };
+
+      const leftProfileMapped = mapSlot("leftProfile");
+      const rightProfileMapped = mapSlot("rightProfile");
+      const leftThreeQuarterMapped = mapSlot("leftThreeQuarter");
+      const rightThreeQuarterMapped = mapSlot("rightThreeQuarter");
+      const chinUpMapped = mapSlot("chinUp");
+
+      setProgress("Classifying features...");
+
+      const frontImgData = getImageData(frontImg);
+
       const result = analyzeFace(
-        mpResults.front.landmarks,
+        frontMapped,
         frontImgData,
         w,
         h,
-        mpResults.leftProfile?.landmarks || null,
-        mpResults.rightProfile?.landmarks || null,
-        mpResults.leftThreeQuarter?.landmarks || null,
-        mpResults.rightThreeQuarter?.landmarks || null,
-        mpResults.chinUp?.landmarks || null
+        leftProfileMapped,
+        rightProfileMapped,
+        leftThreeQuarterMapped,
+        rightThreeQuarterMapped,
+        chinUpMapped
       );
 
       if (heritageResult) {
         result.heritage = heritageResult;
       }
 
-      setFrontLandmarks(mpResults.front.landmarks);
-      setFrontDims({ width: w, height: h });
+      const overlayPts = convertLandmarks68ForOverlay(frontLm68, w, h);
+      if (overlayPts) {
+        setFrontLandmarks(overlayPts);
+        setFrontDims({ width: w, height: h });
+      }
 
       setProgress("Generating recommendations...");
 
@@ -236,6 +261,7 @@ export default function App() {
     setHeritageResult(null);
     imageRefs.current = {};
     descriptors.current = {};
+    landmarkStore.current = {};
     setStep(STEPS.SETUP);
   };
 

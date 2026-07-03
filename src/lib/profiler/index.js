@@ -17,6 +17,7 @@ export async function profilePhoto(imageElement, expectedSlot) {
     slotValid: false,
     descriptor: null,
     heritage: null,
+    landmarks68: null,
     message: null,
   };
 
@@ -25,13 +26,16 @@ export async function profilePhoto(imageElement, expectedSlot) {
   if (!detection) {
     if (
       expectedSlot === "leftProfile" ||
-      expectedSlot === "rightProfile"
+      expectedSlot === "rightProfile" ||
+      expectedSlot === "chinUp"
     ) {
       result.detected = false;
       result.slotValid = true;
       result.quality = { valid: true, issues: [], score: 0.7 };
       result.message =
-        "Face not fully detected at this extreme angle — accepted as profile.";
+        expectedSlot === "chinUp"
+          ? "Face not fully detected at this angle — accepted as chin-up."
+          : "Face not fully detected at this extreme angle — accepted as profile.";
       return result;
     }
 
@@ -42,6 +46,7 @@ export async function profilePhoto(imageElement, expectedSlot) {
 
   result.detected = true;
   result.descriptor = Array.from(detection.descriptor);
+  result.landmarks68 = detection.landmarks;
 
   result.quality = checkQuality(imageElement, detection.detection);
   if (!result.quality.valid) {
@@ -177,3 +182,4 @@ function rgbToLab(r, g, b) {
 
 export { estimateHeritage, HERITAGE_LABELS } from "./heritageEstimator.js";
 export { SLOT_LABELS } from "./poseEstimator.js";
+export { mapLandmarks68to468, convertLandmarks68ForOverlay } from "./landmarkAdapter.js";

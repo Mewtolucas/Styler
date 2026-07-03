@@ -11,7 +11,6 @@ export default defineConfig({
       output: {
         manualChunks: {
           "face-api": ["@vladmandic/face-api"],
-          "mediapipe": ["@mediapipe/tasks-vision"],
         },
       },
     },
