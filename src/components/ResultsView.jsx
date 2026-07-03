@@ -193,6 +193,14 @@ export default function ResultsView({ classification, recommendations, gender, f
       <Section title={isMen ? "Haircut" : "Hairstyle"}>
         <Card item={isMen ? recommendations.haircut : recommendations.hairstyle} />
         {recommendations.symmetryNote && <Card item={recommendations.symmetryNote} />}
+        {recommendations.hairstyleNotes?.length > 0 && (
+          <>
+            <h4 className="font-display text-sm font-semibold text-clay uppercase tracking-wider mt-2">Adjustments for Your Proportions</h4>
+            {recommendations.hairstyleNotes.map((item, i) => (
+              <Card key={i} item={item} />
+            ))}
+          </>
+        )}
       </Section>
 
       {isMen && recommendations.facialHair && (

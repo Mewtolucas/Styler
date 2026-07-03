@@ -14,6 +14,7 @@ import posture from "../../../recommend/content/shared/posture.js";
 import lifestyle from "../../../recommend/content/shared/lifestyle.js";
 import caveat from "../../../recommend/content/shared/caveat.js";
 import proportionHarmony from "../../../recommend/content/shared/proportionHarmony.js";
+import hairstyleProportions from "../../../recommend/content/shared/hairstyleThirds.js";
 
 function lookup(obj, ...keys) {
   let current = obj;
@@ -179,6 +180,60 @@ function buildHarmonySections(classification, gender, ageBracket) {
   return sections;
 }
 
+function buildHairstyleProportionNotes(classification) {
+  const notes = [];
+  const { facialThirds, faceRatio, eyeSpacing, chinProjection, faceShape, proportions } = classification;
+
+  // Facial thirds
+  if (facialThirds && facialThirds !== "balanced") {
+    if (facialThirds.includes("long forehead") && hairstyleProportions.longForehead) notes.push(hairstyleProportions.longForehead);
+    if (facialThirds.includes("short forehead") && hairstyleProportions.shortForehead) notes.push(hairstyleProportions.shortForehead);
+    if (facialThirds.includes("long midface") && hairstyleProportions.longMidface) notes.push(hairstyleProportions.longMidface);
+    if (facialThirds.includes("short midface") && hairstyleProportions.shortMidface) notes.push(hairstyleProportions.shortMidface);
+    if (facialThirds.includes("long lower face") && hairstyleProportions.longLowerFace) notes.push(hairstyleProportions.longLowerFace);
+    if (facialThirds.includes("short lower face") && hairstyleProportions.shortLowerFace) notes.push(hairstyleProportions.shortLowerFace);
+  }
+
+  // Face width-to-height ratio
+  if (faceRatio === "narrow") notes.push(hairstyleProportions.narrowFace);
+  else if (faceRatio === "wide") notes.push(hairstyleProportions.wideFace);
+
+  // Face length
+  if (proportions?.faceShape) {
+    const lr = proportions.faceShape.lengthCheekRatio;
+    if (lr > 1.5) notes.push(hairstyleProportions.longFace);
+    else if (lr < 1.2) notes.push(hairstyleProportions.shortFace);
+  }
+
+  // Jaw width
+  if (proportions?.faceShape) {
+    const jcr = proportions.faceShape.jawCheekRatio;
+    if (jcr > 0.88) notes.push(hairstyleProportions.wideJaw);
+    else if (jcr < 0.72) notes.push(hairstyleProportions.narrowJaw);
+  }
+
+  // Forehead width
+  if (proportions?.faceShape) {
+    const fcr = proportions.faceShape.foreheadCheekRatio;
+    if (fcr > 0.95) notes.push(hairstyleProportions.wideForehead);
+    else if (fcr < 0.75) notes.push(hairstyleProportions.narrowForehead);
+  }
+
+  // Cheekbone prominence
+  if (faceShape === "diamond") notes.push(hairstyleProportions.prominentCheekbones);
+  else if (faceShape === "round" || faceShape === "square") notes.push(hairstyleProportions.flatCheekbones);
+
+  // Chin projection
+  if (chinProjection === "short") notes.push(hairstyleProportions.shortChin);
+  else if (chinProjection === "long") notes.push(hairstyleProportions.longChin);
+
+  // Eye spacing
+  if (eyeSpacing === "wide-set") notes.push(hairstyleProportions.wideSetEyes);
+  else if (eyeSpacing === "close-set") notes.push(hairstyleProportions.closeSetEyes);
+
+  return notes;
+}
+
 export function generateRecommendations(classification, gender, ageBracket) {
   const { faceShape, symmetry, chinProjection, undertone, textureSignals, hairType, eyeShape } = classification;
   const ht = hairType === "unknown" ? "straight" : hairType;
@@ -207,6 +262,8 @@ export function generateRecommendations(classification, gender, ageBracket) {
       recommendations.facialHair = [chinRec, faceRec, ...maintenanceRecs].filter(Boolean);
     }
 
+    recommendations.hairstyleNotes = buildHairstyleProportionNotes(classification);
+
     recommendations.glasses = lookup(menGlasses, faceShape);
     recommendations.glassesFit = menGlasses.fitNote;
 
@@ -216,6 +273,8 @@ export function generateRecommendations(classification, gender, ageBracket) {
       lookup(womenHairstyles, faceShape, ht) ||
       lookup(womenHairstyles, faceShape, "straight") ||
       lookup(womenHairstyles, "oval", ht);
+
+    recommendations.hairstyleNotes = buildHairstyleProportionNotes(classification);
 
     if (ageBracket !== "under18") {
       recommendations.contour = lookup(womenMakeup, "contourByFaceShape", faceShape);
