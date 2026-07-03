@@ -156,8 +156,20 @@ export default function ResultsView({ classification, recommendations, gender, f
             <span className="text-ink capitalize">{classification.lipBalance}</span>
           </div>
           <div>
+            <span className="text-clay block text-xs uppercase tracking-wider mb-1">Lip posture</span>
+            <span className="text-ink capitalize">{classification.lipPosture}</span>
+          </div>
+          <div>
             <span className="text-clay block text-xs uppercase tracking-wider mb-1">Brow arch</span>
             <span className="text-ink capitalize">{classification.browArch?.replace("-", " ")}</span>
+          </div>
+          <div>
+            <span className="text-clay block text-xs uppercase tracking-wider mb-1">Brow shape</span>
+            <span className="text-ink capitalize">{classification.browShape}</span>
+          </div>
+          <div>
+            <span className="text-clay block text-xs uppercase tracking-wider mb-1">Brow thickness</span>
+            <span className="text-ink capitalize">{classification.browThickness}</span>
           </div>
           <div>
             <span className="text-clay block text-xs uppercase tracking-wider mb-1">Brow position</span>
@@ -402,16 +414,19 @@ export default function ResultsView({ classification, recommendations, gender, f
               "Mouth width": classification.proportions.lips?.mouthWidth,
               "Mouth/face ratio": classification.proportions.lips?.mouthFaceRatio,
               "Cupid's bow dip": classification.proportions.lips?.cupidBowDip,
-            }} result={`${classification.lipFullness}, ${classification.lipBalance}, ${classification.lipWidth} width`} />
+              "Corner tilt ratio": classification.proportions.lips?.cornerTiltRatio,
+            }} result={`${classification.lipFullness}, ${classification.lipBalance}, ${classification.lipWidth} width, ${classification.lipPosture}`} />
 
             <ProportionGroup title="Brows" data={{
               "Avg length": classification.proportions.brows?.avgLength,
               "R arch height": classification.proportions.brows?.rightArchHeight,
               "L arch height": classification.proportions.brows?.leftArchHeight,
-              "R arch position": classification.proportions.brows?.rightArchPosition,
-              "L arch position": classification.proportions.brows?.leftArchPosition,
+              "Avg arch position": classification.proportions.brows?.avgArchPosition,
               "Avg brow-eye gap": classification.proportions.brows?.avgBrowEyeGap,
-            }} result={`${classification.browArch}, ${classification.browPosition}`} />
+              "Avg thickness": classification.proportions.brows?.avgThickness,
+              "Thickness/length": classification.proportions.brows?.thicknessToLength,
+              "Tail drop norm": classification.proportions.brows?.tailDropNorm,
+            }} result={`${classification.browShape}, ${classification.browArch}, ${classification.browThickness}, ${classification.browPosition}`} />
           </div>
         </Section>
       )}

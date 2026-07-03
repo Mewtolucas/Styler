@@ -161,6 +161,18 @@ export function classifyLipProportions(landmarks) {
   if (mouthFaceRatio > 0.48) widthLabel = "wide";
   else if (mouthFaceRatio < 0.35) widthLabel = "narrow";
 
+  // Lip posture — mouth corner tilt relative to center
+  const mouthCenter = { y: (upperLipTop.y + lowerLipBottom.y) / 2 };
+  const leftCornerDrop = mouthLeft.y - mouthCenter.y;
+  const rightCornerDrop = mouthRight.y - mouthCenter.y;
+  const avgCornerDrop = (leftCornerDrop + rightCornerDrop) / 2;
+  const mouthHeight = Math.abs(upperLipTop.y - lowerLipBottom.y);
+  const cornerTiltRatio = mouthHeight > 0.001 ? avgCornerDrop / mouthHeight : 0;
+
+  let postureLabel = "neutral";
+  if (cornerTiltRatio < -0.15) postureLabel = "upturned";
+  else if (cornerTiltRatio > 0.2) postureLabel = "downturned";
+
   return {
     upperThickness,
     lowerThickness,
@@ -168,9 +180,11 @@ export function classifyLipProportions(landmarks) {
     mouthWidth,
     mouthFaceRatio,
     cupidBowDip,
+    cornerTiltRatio,
     fullness: fullnessLabel,
     balance: balanceLabel,
     width: widthLabel,
+    posture: postureLabel,
   };
 }
 
@@ -182,13 +196,18 @@ export function classifyBrowProportions(landmarks) {
   const leftBrowArch = landmarks[334];
   const leftBrowOuter = landmarks[300];
 
+  // Additional brow contour points for shape/thickness
+  const rightBrowUpper = landmarks[66];
+  const rightBrowLower = landmarks[52];
+  const leftBrowUpper = landmarks[296];
+  const leftBrowLower = landmarks[282];
+
   const rightEyeUpper = landmarks[159];
   const leftEyeUpper = landmarks[386];
 
   const rightLength = dist(rightBrowInner, rightBrowOuter);
   const leftLength = dist(leftBrowInner, leftBrowOuter);
 
-  const rightInnerToOuter = rightBrowOuter.x - rightBrowInner.x;
   const rightArchHeight = rightBrowInner.y - rightBrowArch.y;
   const rightArchPosition = rightLength > 0.001
     ? dist(rightBrowInner, rightBrowArch) / rightLength : 0.5;
@@ -203,14 +222,43 @@ export function classifyBrowProportions(landmarks) {
 
   const avgArchHeight = (rightArchHeight + leftArchHeight) / 2;
   const avgLength = (rightLength + leftLength) / 2;
+  const avgArchPosition = (rightArchPosition + leftArchPosition) / 2;
+
+  // Brow thickness — distance between upper and lower brow edges
+  const rightThickness = dist(rightBrowUpper, rightBrowLower);
+  const leftThickness = dist(leftBrowUpper, leftBrowLower);
+  const avgThickness = (rightThickness + leftThickness) / 2;
+  const thicknessToLength = avgLength > 0.001 ? avgThickness / avgLength : 0.1;
+
+  let thicknessLabel = "medium";
+  if (thicknessToLength > 0.18) thicknessLabel = "thick";
+  else if (thicknessToLength < 0.08) thicknessLabel = "thin";
+
+  // Brow shape — classify based on arch height and tail drop
+  const rightTailDrop = rightBrowOuter.y - rightBrowInner.y;
+  const leftTailDrop = leftBrowOuter.y - leftBrowInner.y;
+  const avgTailDrop = (rightTailDrop + leftTailDrop) / 2;
+  const tailDropNorm = avgLength > 0.001 ? avgTailDrop / avgLength : 0;
+
+  let shapeLabel = "soft-angled";
+  if (avgArchHeight < 0.005) {
+    shapeLabel = "straight";
+  } else if (avgArchPosition > 0.65) {
+    // Arch peak is far from inner edge — S-shape or rounded
+    shapeLabel = tailDropNorm > 0.15 ? "S-shaped" : "rounded";
+  } else if (avgArchHeight > 0.012 && tailDropNorm > 0.1) {
+    shapeLabel = "angled";
+  } else if (avgArchHeight > 0.008 && tailDropNorm < 0.08) {
+    shapeLabel = "rounded";
+  }
 
   let archLabel = "balanced";
   if (avgArchHeight > 0.015) archLabel = "high-arched";
   else if (avgArchHeight < 0.005) archLabel = "flat";
 
-  let thicknessLabel = "balanced";
-  if (avgBrowEyeGap > 0.035) thicknessLabel = "high-set";
-  else if (avgBrowEyeGap < 0.02) thicknessLabel = "low-set";
+  let positionLabel = "balanced";
+  if (avgBrowEyeGap > 0.035) positionLabel = "high-set";
+  else if (avgBrowEyeGap < 0.02) positionLabel = "low-set";
 
   return {
     rightLength,
@@ -221,8 +269,17 @@ export function classifyBrowProportions(landmarks) {
     avgArchHeight,
     rightArchPosition,
     leftArchPosition,
+    avgArchPosition,
     avgBrowEyeGap,
+    rightThickness,
+    leftThickness,
+    avgThickness,
+    thicknessToLength,
+    avgTailDrop,
+    tailDropNorm,
     arch: archLabel,
-    position: thicknessLabel,
+    position: positionLabel,
+    thickness: thicknessLabel,
+    shape: shapeLabel,
   };
 }

@@ -53,8 +53,11 @@ export function analyzeFace(
     lipFullness: lipResult.fullness,
     lipBalance: lipResult.balance,
     lipWidth: lipResult.width,
+    lipPosture: lipResult.posture,
     browArch: browResult.arch,
     browPosition: browResult.position,
+    browShape: browResult.shape,
+    browThickness: browResult.thickness,
     proportions: {
       faceShape: faceShapeResult.proportions,
       symmetry: symmetryResult.proportions,

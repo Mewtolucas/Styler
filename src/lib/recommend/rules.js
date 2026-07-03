@@ -139,10 +139,24 @@ function buildHarmonySections(classification, gender, ageBracket) {
   if (lipWidth === "wide") addSection("lipProportions", "wide", combinedFilter);
   else if (lipWidth === "narrow") addSection("lipProportions", "narrow", combinedFilter);
 
+  // Lip posture
+  const { lipPosture, browShape: browShapeLabel, browThickness } = classification;
+  if (lipPosture === "upturned") addSection("lipPosture", "upturned", combinedFilter);
+  else if (lipPosture === "downturned") addSection("lipPosture", "downturned", combinedFilter);
+
+  // Brow arch and position
   if (browArch === "high-arched") addSection("browShape", "highArched", combinedFilter);
   else if (browArch === "flat") addSection("browShape", "flat", combinedFilter);
   if (browPosition === "high-set") addSection("browShape", "highSet", combinedFilter);
   else if (browPosition === "low-set") addSection("browShape", "lowSet", combinedFilter);
+
+  // Brow shape type
+  const browShapeMap = { straight: "straight", angled: "angled", rounded: "rounded", "S-shaped": "sShaped", "soft-angled": null };
+  const browShapeKey = browShapeMap[browShapeLabel];
+  if (browShapeKey) addSection("browShapeType", browShapeKey, combinedFilter);
+
+  // Brow grooming/trimming
+  if (browThickness) addSection("browGrooming", browThickness, combinedFilter);
 
   // --- Non-face-reliant tips (color, texture, styling) ---
   if (undertone) addSection("skinUndertone", undertone, combinedFilter);

@@ -1350,6 +1350,47 @@ const proportionHarmony = {
     }
   },
 
+  lipPosture: {
+    upturned: {
+      title: "Working With Upturned Mouth Corners",
+      techniques: [
+        {
+          area: "Lip Color (Women)",
+          body: "Upturned corners give a naturally cheerful resting expression. Lean into it — warm lip shades (peach, coral, rose) complement the upward lift. Defining the cupid's bow with liner draws attention to the center of the lip rather than the corners. Avoid extending lip color past the natural corner, which exaggerates the upturn."
+        },
+        {
+          area: "Balance",
+          body: "Upturned corners are a naturally harmonious feature that most styling already complements. If you want a more neutral expression, a slightly darker or matte lip shade at the corners tones down the visual lift without fighting it."
+        },
+        {
+          area: "Photography",
+          body: "Upturned corners photograph well in both relaxed and smiling expressions. A slight, closed-mouth smile reads as natural because the corners are already lifted. This is one of the easier lip postures to photograph."
+        }
+      ]
+    },
+    downturned: {
+      title: "Working With Downturned Mouth Corners",
+      techniques: [
+        {
+          area: "Lip Color (Women)",
+          body: "Define the outer corners with lip liner slightly above the natural line at the corners only (1mm, no more) — this lifts the visual endpoint. A slightly lighter or brighter shade at the corners draws them upward. Avoid dark lip colors that make the corners recede further."
+        },
+        {
+          area: "Contouring (Women)",
+          body: "A small touch of concealer or highlighter just below the corners of the mouth covers the shadow cast by the downturn and lifts the area. Blend carefully — this is a subtle correction. A dab of blush on the cheeks near the mouth draws the eye upward and away from the corners."
+        },
+        {
+          area: "Facial Hair (Men)",
+          body: "A mustache that extends slightly past the mouth corners masks the downturn and creates a horizontal line that reads as neutral. A handlebar-style mustache that curves upward at the ends directly counteracts the downward pull. Keep the mustache well-groomed at the corners."
+        },
+        {
+          area: "Photography",
+          body: "A slight smile neutralizes downturned corners more effectively than trying to hold a neutral expression. In photos, even a minimal upturn of the lip muscles reads as relaxed rather than tense. Direct, frontal lighting also reduces the shadow at the corners."
+        }
+      ]
+    }
+  },
+
   browShape: {
     highArched: {
       title: "Working With High-Arched Brows",
@@ -1416,6 +1457,135 @@ const proportionHarmony = {
         {
           area: "Glasses",
           body: "Frames that sit slightly lower on the face — away from the brow — prevent the frame from competing with already-low brows. Avoid frames that touch or overlap the brow line."
+        }
+      ]
+    }
+  },
+
+  browGrooming: {
+    thick: {
+      title: "Grooming Thick Brows",
+      techniques: [
+        {
+          area: "Trimming",
+          body: "Brush brow hairs straight up with a spoolie. Any hairs that extend more than 2–3mm past the top of the natural brow line should be trimmed with small scissors — cut to the brow line, not shorter. This maintains fullness while removing the wild, unkempt look. Never trim all hairs to the same length, which creates an unnatural flat edge."
+        },
+        {
+          area: "Shaping",
+          body: "Remove only stray hairs outside the natural brow shape — between the brows, below the tail, and any obviously out-of-place hairs above the arch. The goal is cleanup, not redesign. Thick brows are a strong feature — thinning them too much removes their impact. Tweeze individual hairs rather than waxing, which removes too much at once."
+        },
+        {
+          area: "Maintenance",
+          body: "Brow gel (clear or tinted) keeps thick brows in place throughout the day. A heavier-hold gel works better on thick, coarse brow hair than a light formula. Brush upward and slightly outward following the natural growth direction. Trim every 2–3 weeks to prevent overgrowth."
+        },
+        {
+          area: "Balance",
+          body: "Thick brows are a dominant feature — make sure other features hold their own. Well-defined eyes (liner, lash work) and a defined lip prevent the brows from overwhelming the face. If the brows feel too heavy, lightening them one shade with brow tint softens their dominance without removing volume."
+        }
+      ]
+    },
+    thin: {
+      title: "Working With Thin Brows",
+      techniques: [
+        {
+          area: "Filling",
+          body: "Use a fine-tipped brow pencil to draw individual hair-like strokes in the direction of natural growth. Build density gradually rather than drawing a solid line. Focus on sparse areas — typically the tail and any gaps in the body. A shade slightly lighter than your natural hair color looks more natural than matching exactly."
+        },
+        {
+          area: "Growth",
+          body: "If you want thicker brows, stop all removal (tweezing, waxing, threading) for 6–12 weeks to see your full natural growth pattern. Castor oil or brow serums may help, but results vary. The awkward grow-out phase is temporary — fill with pencil during this period."
+        },
+        {
+          area: "Maintenance",
+          body: "With thin brows, avoid trimming length — you need every hair. Only remove truly stray hairs that are clearly outside the brow shape. A tinted brow gel adds visual density by coating each hair with color, making thin brows look fuller without adding product to skin."
+        }
+      ]
+    },
+    medium: {
+      title: "Maintaining Medium Brows",
+      techniques: [
+        {
+          area: "Trimming",
+          body: "Brush hairs upward with a spoolie and trim any that extend past the natural top line. For medium brows, this is usually just a few hairs. Trim conservatively — you can always cut more, but you can't undo a trim. Check both brows in the mirror from arm's length after trimming to ensure they look even."
+        },
+        {
+          area: "Shaping",
+          body: "Clean up stray hairs between the brows and below the arch with tweezers. The inner brow edge should roughly align with the side of the nose. The arch peak should align roughly with the outer edge of the iris. The tail should end roughly at a line from the nostril through the outer eye corner."
+        },
+        {
+          area: "Maintenance",
+          body: "A clear brow gel keeps hairs in place without adding color. Groom every 1–2 weeks with tweezers to maintain shape. Annual visits to a professional brow stylist can establish a shape you then maintain at home."
+        }
+      ]
+    }
+  },
+
+  browShapeType: {
+    straight: {
+      title: "Working With Straight Brows",
+      techniques: [
+        {
+          area: "Shaping",
+          body: "Straight brows create a calm, youthful look and strong horizontal emphasis. Maintain the straightness by removing only hairs below the brow — don't try to create an arch. If you want the slightest curve, remove a few hairs from the outer third underside, but keep it subtle."
+        },
+        {
+          area: "Trimming",
+          body: "Straight brows show uneven length more than arched ones because there's no curve to hide variation. Trim carefully to a uniform length along the top edge. Brush hairs upward, trim to the line, then brush into place."
+        },
+        {
+          area: "Balance",
+          body: "Straight brows pair well with angular face shapes (square, diamond) where they echo existing geometry. On round faces, they add the horizontal structure the face doesn't have naturally. On very long faces, they create a strong horizontal break that shortens."
+        }
+      ]
+    },
+    angled: {
+      title: "Working With Angled Brows",
+      techniques: [
+        {
+          area: "Shaping",
+          body: "Angled brows have a clear peak with a distinct direction change — the front rises and the tail drops. Maintain the angle by keeping the area around the peak clean. Remove strays below the arch to keep the angle crisp. Don't round the peak — the sharp angle is the defining feature."
+        },
+        {
+          area: "Trimming",
+          body: "Trim the front section (before the peak) and the tail section separately — they grow at different angles. Brush front hairs upward, tail hairs outward and slightly down, then trim each section to its respective line."
+        },
+        {
+          area: "Balance",
+          body: "Angled brows add sharpness and structure. They pair well with softer face shapes (round, oval) where they add definition. On angular faces (square, diamond), they can feel intense — softening the angle slightly with brow pencil under the peak reduces the sharpness."
+        }
+      ]
+    },
+    rounded: {
+      title: "Working With Rounded Brows",
+      techniques: [
+        {
+          area: "Shaping",
+          body: "Rounded brows have a gentle, continuous curve without a sharp peak. Maintain the softness by avoiding sharp angles when grooming — follow the natural curve. Remove strays following the curve's contour. A professional shaping session can establish the ideal curve for your face."
+        },
+        {
+          area: "Trimming",
+          body: "Brush hairs in their natural growth direction (upward in the center, outward at the sides) and trim to the natural curved top line. The curve should be smooth — uneven trimming shows more on rounded brows because there's no angle to distract."
+        },
+        {
+          area: "Balance",
+          body: "Rounded brows soften angular faces and complement round and oval faces naturally. They create a friendly, approachable look. If you want more structure on a round face, a slightly more defined arch point adds lift without abandoning the curve."
+        }
+      ]
+    },
+    sShaped: {
+      title: "Working With S-Shaped Brows",
+      techniques: [
+        {
+          area: "Shaping",
+          body: "S-shaped brows curve upward then reverse direction — the arch peak is positioned far from the inner edge, creating a subtle S curve. This is a distinctive, elegant shape. Maintain it by following the natural double curve when grooming. Remove strays below both curves."
+        },
+        {
+          area: "Trimming",
+          body: "The S-shape means hairs grow in different directions along the brow. Section the brow into three zones (inner flat, mid-arch, outer drop) and brush each in its growth direction before trimming. This preserves the natural wave."
+        },
+        {
+          area: "Balance",
+          body: "S-shaped brows are visually dynamic — they draw the eye along the brow. They work well as a statement feature. Keep other features relatively simple to let the brow shape stand out. If the S is too pronounced, filling in under the dip softens the curve."
         }
       ]
     }
