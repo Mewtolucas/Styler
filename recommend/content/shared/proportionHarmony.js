@@ -887,6 +887,440 @@ const proportionHarmony = {
         }
       ]
     }
+  },
+
+  faceRatio: {
+    narrow: {
+      title: "Balancing a Narrow Face Ratio",
+      techniques: [
+        {
+          area: "Hair",
+          body: "Add volume at the sides and keep the top relatively flat. Side-swept styles, layered cuts that build width at ear level, and bobs that end at the jaw all widen a narrow face ratio. Avoid tall, voluminous top sections that add more height."
+        },
+        {
+          area: "Brows",
+          body: "Flatter, more horizontal brows create a stronger horizontal line across the face, counteracting the vertical emphasis. Avoid very high arches that draw the eye upward and reinforce the narrow ratio."
+        },
+        {
+          area: "Glasses",
+          body: "Wide frames that extend past the face's edges add visual width. Rectangular or cat-eye shapes with horizontal emphasis work well. Avoid narrow, oval frames that echo the narrow proportion."
+        },
+        {
+          area: "Accessories & Neckline",
+          body: "Wide, horizontal necklines (boat necks, off-shoulder) and short necklaces create width at the base. Wide earrings and horizontal hat brims add visual mass at the sides."
+        }
+      ]
+    },
+    wide: {
+      title: "Balancing a Wide Face Ratio",
+      techniques: [
+        {
+          area: "Hair",
+          body: "Height at the crown elongates a wide face ratio. Pompadours, quiffs, volume at the top, and center parts all add vertical emphasis. Avoid flat styles that sit close to the head with no lift."
+        },
+        {
+          area: "Brows",
+          body: "A defined arch creates a vertical peak that adds height to the upper face. Angled brows with a clear high point are more elongating than flat, straight brows."
+        },
+        {
+          area: "Glasses",
+          body: "Frames with some vertical height — tall rectangles, aviators, or angular shapes — add length. Avoid very wide, horizontal frames that emphasize width."
+        },
+        {
+          area: "Accessories & Neckline",
+          body: "V-necklines and long pendants create vertical lines. Avoid wide chokers and horizontal necklaces. Long, drop earrings elongate more than studs."
+        }
+      ]
+    }
+  },
+
+  facialThirds: {
+    longForehead: {
+      title: "Balancing a Longer Forehead",
+      techniques: [
+        {
+          area: "Hair",
+          body: "Bangs are the most direct way to visually shorten a longer forehead — full bangs, curtain bangs, or side-swept fringe all work by covering part of the forehead. If bangs aren't your style, bringing hair forward at the temples or adding volume at the sides shifts attention away from the forehead height."
+        },
+        {
+          area: "Brows",
+          body: "Fuller, well-defined brows raise the visual 'floor' of the forehead. Thicker brows occupy more of the forehead space and draw the eye to the mid-face rather than the distance above them. Avoid over-plucking which reveals more forehead."
+        },
+        {
+          area: "Glasses",
+          body: "Frames that sit higher on the face — browline or top-heavy frames — draw the eye to the midface and make the forehead feel proportional. Bold top rims are particularly effective."
+        },
+        {
+          area: "Contouring (Women)",
+          body: "A matte bronzer along the hairline blends the forehead into the hair, reducing the visible forehead height. Apply at the temple area and blend upward into the hairline."
+        }
+      ]
+    },
+    shortForehead: {
+      title: "Opening Up a Shorter Forehead",
+      techniques: [
+        {
+          area: "Hair",
+          body: "Avoid bangs that cover the forehead — they shorten it further. Swept-back styles, slicked hair, and off-the-forehead cuts reveal the full forehead and make it read as larger. Volume at the crown also lifts the visual top of the face."
+        },
+        {
+          area: "Brows",
+          body: "Thinner, more refined brows or a higher arch reveal more skin between the brow and hairline, creating the appearance of a taller forehead. Avoid very thick, heavy brows that crowd the space."
+        },
+        {
+          area: "Glasses",
+          body: "Frames that sit lower on the face keep attention on the mid and lower face, letting the forehead feel proportional. Avoid heavy top-bar frames that sit at the brow line."
+        }
+      ]
+    },
+    longMidface: {
+      title: "Shortening the Midface",
+      techniques: [
+        {
+          area: "Brows",
+          body: "Lower, straighter brows bring the upper boundary of the midface down, shortening its appearance. A slight arch is fine, but avoid very high arches that pull the brows away from the eyes and lengthen the midface."
+        },
+        {
+          area: "Glasses",
+          body: "Larger frames that cover more of the midface visually compress it. Aviators and oversized frames are particularly effective because they occupy the space between eyes and mouth."
+        },
+        {
+          area: "Contouring (Women)",
+          body: "Blush placed higher on the cheeks — closer to the eyes rather than along the cheekbone — shortens the midface by raising the visual center of gravity."
+        },
+        {
+          area: "Facial Hair (Men)",
+          body: "A mustache creates a horizontal break across the midface that visually shortens it. Combined with a shorter beard, this partitions the long midface into smaller sections."
+        }
+      ]
+    },
+    shortMidface: {
+      title: "Lengthening the Midface",
+      techniques: [
+        {
+          area: "Brows",
+          body: "A higher brow arch opens the space between eyes and brow, making the midface feel taller. Grooming the brows to sit slightly higher (or using brow gel to lift them) adds the most impact."
+        },
+        {
+          area: "Contouring (Women)",
+          body: "Blush placed lower — along the cheekbone rather than the apple of the cheek — lengthens the midface by drawing the visual center downward."
+        },
+        {
+          area: "Glasses",
+          body: "Smaller, narrower frames that don't cover much vertical space let the midface show fully. Avoid oversized frames that compress the short midface further."
+        }
+      ]
+    },
+    longLowerFace: {
+      title: "Shortening a Long Lower Face",
+      techniques: [
+        {
+          area: "Facial Hair (Men)",
+          body: "A fuller beard adds visual width at the jaw and chin that breaks up the long lower face. Keeping the beard wider and shorter (rather than long and narrow) creates a horizontal emphasis that counteracts the vertical length."
+        },
+        {
+          area: "Lip Color (Women)",
+          body: "A bolder lip color draws the eye to the mouth area — the center of the lower face — rather than letting the eye travel the full distance from nose to chin. Lighter lip colors don't anchor the eye as effectively."
+        },
+        {
+          area: "Glasses",
+          body: "Larger frames shift the face's visual center upward, making the lower face feel shorter by comparison."
+        }
+      ]
+    },
+    shortLowerFace: {
+      title: "Lengthening a Short Lower Face",
+      techniques: [
+        {
+          area: "Facial Hair (Men)",
+          body: "A longer, more tapered beard extends the chin line and adds visual length to the lower face. A pointed or V-shaped beard is particularly effective at creating downward elongation."
+        },
+        {
+          area: "Lip Color (Women)",
+          body: "Subtle lip color in a natural shade keeps the mouth from becoming a strong horizontal anchor, allowing the eye to read the lower face as longer. Avoid very bold, wide lip applications."
+        },
+        {
+          area: "Hair",
+          body: "Shorter hairstyles and upswept styles reduce the visual weight of the upper face, making the lower face feel proportionally longer."
+        }
+      ]
+    }
+  },
+
+  eyeSpacing: {
+    wideSet: {
+      title: "Balancing Wide-Set Eyes",
+      techniques: [
+        {
+          area: "Brows",
+          body: "Bringing the inner edges of the brows slightly closer together (through brow pencil or growth) narrows the visual gap between the eyes. The inner brow should ideally align with the inner corner of the eye — if there's a visible gap, filling it in is the most effective correction."
+        },
+        {
+          area: "Glasses",
+          body: "Frames with a visible bridge or darker bridge detail draw the eye inward toward the center of the face. A thicker bridge or double-bridge design connects the eyes visually. Avoid rimless or frameless bridges that leave the gap open."
+        },
+        {
+          area: "Contouring (Women)",
+          body: "A darker shadow shade in the inner corner of the eye draws the eyes inward. Highlighting the outer corners and extending liner outward shifts the focus. Nose contour along the sides of the bridge also narrows the visual center."
+        },
+        {
+          area: "Hair",
+          body: "A center part draws a vertical line down the face's midline, anchoring the eyes closer to the center. Side parts can make wide-set eyes feel even wider on one side."
+        }
+      ]
+    },
+    closeSet: {
+      title: "Opening Up Close-Set Eyes",
+      techniques: [
+        {
+          area: "Brows",
+          body: "Creating slightly more space between the inner brow edges opens the center of the face. Avoid letting the brows grow too close together, which reinforces the close spacing."
+        },
+        {
+          area: "Glasses",
+          body: "Frames with a clear, thin, or transparent bridge minimize the visual connection between the eyes. Wider frames that extend past the face push the eyes outward. Avoid thick, dark bridges that draw attention to the narrow gap."
+        },
+        {
+          area: "Contouring (Women)",
+          body: "Lighter shadow shades on the inner corners of the eyes and darker, more defined shadow on the outer corners push the eyes apart visually. Extend liner slightly past the outer corner for additional width."
+        },
+        {
+          area: "Hair",
+          body: "A side part breaks the center of the face and draws attention away from the close spacing. Avoid center parts that place a line directly between close-set eyes."
+        }
+      ]
+    }
+  },
+
+  noseProportions: {
+    long: {
+      title: "Balancing a Longer Nose",
+      techniques: [
+        {
+          area: "Glasses",
+          body: "Low-bridge frames or frames that sit lower on the nose visually break the nose's length. A thick, prominent bridge bar creates a horizontal line across the nose that shortens it. Avoid small, high-sitting frames that leave the full nose visible."
+        },
+        {
+          area: "Contouring (Women)",
+          body: "A small highlight on the tip of the nose draws the eye to the endpoint, making the nose feel shorter. A subtle shadow under the tip (not down the bridge) creates the illusion of a shorter nose. Avoid contouring down the full length of the bridge, which emphasizes length."
+        },
+        {
+          area: "Brows",
+          body: "Straighter, more horizontal brows create a strong horizontal line near the top of the nose that visually caps its length. High arches allow the eye to travel the full nose length unchecked."
+        },
+        {
+          area: "Hair",
+          body: "Volume at the sides of the face widens the overall proportions, making the nose feel smaller in context. A flat, narrow hairstyle makes any nose look proportionally larger."
+        }
+      ]
+    },
+    short: {
+      title: "Balancing a Shorter Nose",
+      techniques: [
+        {
+          area: "Glasses",
+          body: "Frames that sit higher on the nose reveal more of the nose's lower half. Thin, light frames avoid covering the nose area. Avoid heavy, low-bridge frames that obscure the nose."
+        },
+        {
+          area: "Contouring (Women)",
+          body: "A thin highlight line down the bridge of the nose and a small shadow at the very tip create the illusion of more length. Blend carefully — the line should be subtle and straight."
+        },
+        {
+          area: "Brows",
+          body: "A higher brow arch lifts the upper face away from the nose, giving the nose more visual space and making it feel longer relative to the surroundings."
+        }
+      ]
+    },
+    wide: {
+      title: "Balancing a Wider Nose",
+      techniques: [
+        {
+          area: "Glasses",
+          body: "Frames with a narrow bridge draw the eye to the center of the face. Wider frames that are wider than the nose at the cheek level make the nose feel proportionally smaller. Avoid narrow frames that are roughly the same width as the nose."
+        },
+        {
+          area: "Contouring (Women)",
+          body: "Subtle shadow along the sides of the nose (from bridge to nostril) narrows it visually. Highlight down the center of the bridge draws the eye to a narrow line. Blend very well — visible contour lines look unnatural."
+        },
+        {
+          area: "Hair",
+          body: "Width at the sides of the face makes a wider nose less prominent by proportion. Avoid very sleek, narrow hairstyles that make the nose the widest element in the face."
+        }
+      ]
+    },
+    narrow: {
+      title: "Balancing a Narrower Nose",
+      techniques: [
+        {
+          area: "Glasses",
+          body: "Thinner, lighter frames that don't overwhelm a narrow nose. A bridge width that matches the nose keeps things proportional. Heavy, wide frames can overpower a narrow nose."
+        },
+        {
+          area: "Contouring (Women)",
+          body: "A slightly wider highlight down the bridge broadens the nose subtly. Avoid any side-shadow contouring, which narrows further."
+        }
+      ]
+    }
+  },
+
+  lipProportions: {
+    full: {
+      title: "Working With Fuller Lips",
+      techniques: [
+        {
+          area: "Lip Color (Women)",
+          body: "Full lips carry bold color well — deeper shades, saturated tones, and matte finishes all look intentional. Lip liner matched to the natural lip edge defines the shape cleanly. Overlining is unnecessary and can look heavy on already-full lips."
+        },
+        {
+          area: "Balance",
+          body: "Fuller lips are a dominant facial feature — balance them by adding definition elsewhere. Well-defined brows and eye makeup prevent the lips from overwhelming the face. If wearing a bold lip, keep eye makeup more subtle, and vice versa."
+        },
+        {
+          area: "Photography",
+          body: "Matte lip products photograph with more definition than glossy ones on full lips. Gloss catches light and can make full lips look even larger in photos, which may or may not be what you want."
+        }
+      ]
+    },
+    thin: {
+      title: "Working With Thinner Lips",
+      techniques: [
+        {
+          area: "Lip Color (Women)",
+          body: "Lighter, natural shades make thin lips look fuller than dark colors (which visually shrink). Gloss adds dimension and light reflection that creates the appearance of more volume. A lip liner just outside the natural lip line (by 1mm, no more) subtly extends the visual lip area."
+        },
+        {
+          area: "Balance",
+          body: "Draw attention to the lips with defined lip products, and keep the surrounding features (nose, chin) softer. A strong brow-and-eye focus can make thin lips feel balanced rather than undersized."
+        },
+        {
+          area: "Facial Hair (Men)",
+          body: "A mustache frames thin lips and adds visual mass to the mouth area. The mustache's width and shape become part of the lip's visual presence, making thin lips feel proportional."
+        }
+      ]
+    },
+    bottomHeavy: {
+      title: "Balancing Bottom-Heavy Lips",
+      techniques: [
+        {
+          area: "Lip Color (Women)",
+          body: "Slightly overlining the upper lip (1mm max) and using a fractionally lighter shade on the upper lip evens out the proportions. A defined cupid's bow draws the eye upward. Avoid darkening only the lower lip, which emphasizes the imbalance."
+        },
+        {
+          area: "Balance",
+          body: "A strong cupid's bow definition — either with lip liner or a lip product with good hold — adds structure to the upper lip that balances the fuller lower lip."
+        }
+      ]
+    },
+    topHeavy: {
+      title: "Balancing Top-Heavy Lips",
+      techniques: [
+        {
+          area: "Lip Color (Women)",
+          body: "A slightly darker or more saturated color on the lower lip adds visual weight to balance a thinner lower lip. Gloss applied only to the lower lip adds volume through light reflection."
+        },
+        {
+          area: "Balance",
+          body: "Top-heavy lips are uncommon and distinctive — they can be a signature feature rather than something to correct. If you want to balance them, subtle lower-lip techniques work better than trying to reduce the upper lip."
+        }
+      ]
+    },
+    wide: {
+      title: "Working With a Wide Mouth",
+      techniques: [
+        {
+          area: "Lip Color (Women)",
+          body: "A wide mouth carries soft, natural shades beautifully. Bold color across a wide mouth is a strong statement — commit to it or go subtle. Avoid stopping lip color short of the corners, which creates an unfinished look."
+        },
+        {
+          area: "Glasses",
+          body: "Frames at least as wide as the mouth maintain proportion. Narrow frames that are smaller than the mouth width can look undersized."
+        }
+      ]
+    },
+    narrow: {
+      title: "Working With a Narrow Mouth",
+      techniques: [
+        {
+          area: "Lip Color (Women)",
+          body: "Slightly extending lip color past the natural lip corners (by 1–2mm) widens the mouth subtly. Lighter, glossier shades spread the visual focus wider than dark, matte shades that define a tight line."
+        },
+        {
+          area: "Glasses",
+          body: "Narrower frames that don't dwarf the mouth keep everything in proportion. Very wide frames can make a narrow mouth look smaller by contrast."
+        }
+      ]
+    }
+  },
+
+  browShape: {
+    highArched: {
+      title: "Working With High-Arched Brows",
+      techniques: [
+        {
+          area: "Brows",
+          body: "High arches are expressive and add vertical emphasis to the upper face. If the arch feels too dramatic, filling in the area under the arch with brow pencil (in light, hair-like strokes) softens the peak without removing it. Avoid plucking under the arch, which makes it even higher."
+        },
+        {
+          area: "Glasses",
+          body: "Frames that follow the brow's curve — cat-eye or upswept shapes — complement high arches. Straight, rectangular frames can clash with the brow's curve and create competing lines."
+        },
+        {
+          area: "Balance",
+          body: "High arches lift the upper face, which pairs well with features that anchor the lower face — fuller lips, a defined jaw, or a strong chin. If the lower face is soft, the high arches can dominate — add definition below (bold lip, structured neckline) to balance."
+        }
+      ]
+    },
+    flat: {
+      title: "Working With Flat Brows",
+      techniques: [
+        {
+          area: "Brows",
+          body: "Flat brows create a calm, grounded look. If you want more lift, a brow gel brushed upward at the outer third creates a subtle arch. Plucking from below at the arch point (2/3 from the inner edge) gradually creates more curve. Don't force a dramatic arch — a slight lift is more natural."
+        },
+        {
+          area: "Glasses",
+          body: "Frames with some angular shape — browline frames, angular rectangles — add the structure that flat brows don't provide. Avoid very round frames that contrast too strongly with the straight brow line."
+        },
+        {
+          area: "Balance",
+          body: "Flat brows work well with angular faces (square, diamond) where they echo the existing geometry. On round faces, flat brows can make everything feel soft — add some brow definition if you want more structure."
+        }
+      ]
+    },
+    highSet: {
+      title: "Balancing High-Set Brows",
+      techniques: [
+        {
+          area: "Brows",
+          body: "The space between brow and eye can feel large with high-set brows. Filling in the lower edge of the brow — making it slightly thicker downward — reduces the gap. A darker brow shade creates more presence that fills the upper eye area."
+        },
+        {
+          area: "Contouring (Women)",
+          body: "Eye shadow that extends from the lid up toward the brow fills the space between eye and brow. A transition shade that bridges the crease and brow bone connects the two and makes the gap feel intentional."
+        },
+        {
+          area: "Glasses",
+          body: "Frames that sit higher, closer to the brow line, reduce the visible gap. Browline frames (dark on top, lighter below) blend the brow and frame into one visual line."
+        }
+      ]
+    },
+    lowSet: {
+      title: "Working With Low-Set Brows",
+      techniques: [
+        {
+          area: "Brows",
+          body: "Low-set brows can make the eyes feel hooded or heavy. Removing hair from the bottom of the brow raises its visual position. A lighter brow shade makes the brow feel less dominant. Brow gel that lifts hairs upward opens the eye area."
+        },
+        {
+          area: "Contouring (Women)",
+          body: "Lighter eye shadow on the brow bone lifts the area between brow and lid. Avoid dark shadow on the brow bone, which brings the brow visually lower. A well-placed highlight under the brow arch opens the eye."
+        },
+        {
+          area: "Glasses",
+          body: "Frames that sit slightly lower on the face — away from the brow — prevent the frame from competing with already-low brows. Avoid frames that touch or overlap the brow line."
+        }
+      ]
+    }
   }
 };
 

@@ -120,7 +120,49 @@ export default function ResultsView({ classification, recommendations, gender, f
           description={SHAPE_DESCRIPTIONS[classification.faceShape]}
         />
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 gap-y-3 text-sm">
+          <div>
+            <span className="text-clay block text-xs uppercase tracking-wider mb-1">Face ratio</span>
+            <span className="text-ink capitalize">{classification.faceRatio}</span>
+          </div>
+          <div>
+            <span className="text-clay block text-xs uppercase tracking-wider mb-1">Facial thirds</span>
+            <span className="text-ink capitalize">{classification.facialThirds}</span>
+          </div>
+          <div>
+            <span className="text-clay block text-xs uppercase tracking-wider mb-1">Eye spacing</span>
+            <span className="text-ink capitalize">{classification.eyeSpacing?.replace("-", " ")}</span>
+          </div>
+          {!isMen && (
+            <div>
+              <span className="text-clay block text-xs uppercase tracking-wider mb-1">Eye shape</span>
+              <span className="text-ink capitalize">{classification.eyeShape.replace("-", " / ")}</span>
+            </div>
+          )}
+          <div>
+            <span className="text-clay block text-xs uppercase tracking-wider mb-1">Nose length</span>
+            <span className="text-ink capitalize">{classification.noseLength}</span>
+          </div>
+          <div>
+            <span className="text-clay block text-xs uppercase tracking-wider mb-1">Nose width</span>
+            <span className="text-ink capitalize">{classification.noseWidth}</span>
+          </div>
+          <div>
+            <span className="text-clay block text-xs uppercase tracking-wider mb-1">Lip fullness</span>
+            <span className="text-ink capitalize">{classification.lipFullness}</span>
+          </div>
+          <div>
+            <span className="text-clay block text-xs uppercase tracking-wider mb-1">Lip balance</span>
+            <span className="text-ink capitalize">{classification.lipBalance}</span>
+          </div>
+          <div>
+            <span className="text-clay block text-xs uppercase tracking-wider mb-1">Brow arch</span>
+            <span className="text-ink capitalize">{classification.browArch?.replace("-", " ")}</span>
+          </div>
+          <div>
+            <span className="text-clay block text-xs uppercase tracking-wider mb-1">Brow position</span>
+            <span className="text-ink capitalize">{classification.browPosition?.replace("-", " ")}</span>
+          </div>
           <div>
             <span className="text-clay block text-xs uppercase tracking-wider mb-1">Hair type</span>
             <span className="text-ink capitalize">{classification.hairType === "unknown" ? "Not detected" : classification.hairType}</span>
@@ -133,12 +175,6 @@ export default function ResultsView({ classification, recommendations, gender, f
             <span className="text-clay block text-xs uppercase tracking-wider mb-1">Symmetry</span>
             <span className="text-ink capitalize">{classification.symmetry.replace("-", " ")}</span>
           </div>
-          {!isMen && (
-            <div>
-              <span className="text-clay block text-xs uppercase tracking-wider mb-1">Eye shape</span>
-              <span className="text-ink capitalize">{classification.eyeShape.replace("-", " / ")}</span>
-            </div>
-          )}
         </div>
       </div>
 
@@ -321,6 +357,61 @@ export default function ResultsView({ classification, recommendations, gender, f
               "Avg edge magnitude": classification.proportions.hair?.avgEdge,
               "Sample count": classification.proportions.hair?.sampleCount,
             }} result={classification.hairType} />
+
+            <ProportionGroup title="Face Ratio (W:H)" data={{
+              "Value": classification.proportions.faceRatio?.value,
+            }} result={classification.faceRatio} />
+
+            <ProportionGroup title="Facial Thirds" data={{
+              "Forehead height": classification.proportions.facialThirds?.foreheadHeight,
+              "Midface height": classification.proportions.facialThirds?.midfaceHeight,
+              "Lower face height": classification.proportions.facialThirds?.lowerFaceHeight,
+              "Forehead deviation": classification.proportions.facialThirds?.foreheadDeviation,
+              "Midface deviation": classification.proportions.facialThirds?.midfaceDeviation,
+              "Lower face deviation": classification.proportions.facialThirds?.lowerFaceDeviation,
+            }} result={classification.facialThirds} />
+
+            <ProportionGroup title="Facial Fifths" data={{
+              "Fifth 1 (edge→L eye)": classification.proportions.facialFifths?.fifth1,
+              "Fifth 2 (L eye width)": classification.proportions.facialFifths?.fifth2,
+              "Fifth 3 (eye spacing)": classification.proportions.facialFifths?.fifth3,
+              "Fifth 4 (R eye width)": classification.proportions.facialFifths?.fifth4,
+              "Fifth 5 (R eye→edge)": classification.proportions.facialFifths?.fifth5,
+              "Ideal fifth": classification.proportions.facialFifths?.fifthIdeal,
+            }} result={classification.eyeSpacing} />
+
+            <ProportionGroup title="Eye Spacing" data={{
+              "Spacing value": classification.proportions.eyeSpacing?.value,
+              "L eye width": classification.proportions.eyeSpacing?.leftEyeWidth,
+              "R eye width": classification.proportions.eyeSpacing?.rightEyeWidth,
+              "Spacing/eye ratio": classification.proportions.eyeSpacing?.ratio,
+            }} result={classification.eyeSpacing} />
+
+            <ProportionGroup title="Nose" data={{
+              "Length": classification.proportions.nose?.length?.value,
+              "Face ratio": classification.proportions.nose?.length?.faceRatio,
+              "Nostril width": classification.proportions.nose?.width?.nostrilWidth,
+              "Bridge width": classification.proportions.nose?.width?.bridgeWidth,
+              "Nostril/bridge ratio": classification.proportions.nose?.width?.ratio,
+            }} result={`${classification.noseLength} length, ${classification.noseWidth} width`} />
+
+            <ProportionGroup title="Lips" data={{
+              "Upper thickness": classification.proportions.lips?.upperThickness,
+              "Lower thickness": classification.proportions.lips?.lowerThickness,
+              "Lip ratio (lower/upper)": classification.proportions.lips?.lipRatio,
+              "Mouth width": classification.proportions.lips?.mouthWidth,
+              "Mouth/face ratio": classification.proportions.lips?.mouthFaceRatio,
+              "Cupid's bow dip": classification.proportions.lips?.cupidBowDip,
+            }} result={`${classification.lipFullness}, ${classification.lipBalance}, ${classification.lipWidth} width`} />
+
+            <ProportionGroup title="Brows" data={{
+              "Avg length": classification.proportions.brows?.avgLength,
+              "R arch height": classification.proportions.brows?.rightArchHeight,
+              "L arch height": classification.proportions.brows?.leftArchHeight,
+              "R arch position": classification.proportions.brows?.rightArchPosition,
+              "L arch position": classification.proportions.brows?.leftArchPosition,
+              "Avg brow-eye gap": classification.proportions.brows?.avgBrowEyeGap,
+            }} result={`${classification.browArch}, ${classification.browPosition}`} />
           </div>
         </Section>
       )}
