@@ -170,35 +170,46 @@ function getFullHarmony(style) {
   return mapped;
 }
 
-// Impact weights — how much each proportion deviation should influence
-// hairstyle selection. Based on visual perception research:
-//   Overall face frame is perceived first (ratio, length)
-//   Vertical thirds are next most salient
-//   Horizontal widths affect framing
-//   Structure features are secondary
-//   Detail features are subtle
-const WEIGHTS = {
-  faceShape: 1.0,
-  faceRatio: 0.95,
-  faceLength: 0.9,
-  foreheadThird: 0.85,
-  midfaceThird: 0.75,
-  lowerFaceThird: 0.75,
-  foreheadWidth: 0.7,
-  jawWidth: 0.7,
+// Proportion-first weights. Face shape label is deliberately low — it's a
+// coarse bucket that can conflict with the actual measurements (e.g. a face
+// labeled "round" can still have a high length-to-cheek ratio). The continuous
+// proportion measurements are the primary drivers.
+//
+// Weights also scale by deviation magnitude — a jaw that's barely wide
+// matters less than one that's extremely wide. The `deviationScale` function
+// converts a raw ratio into a 0–1 intensity that multiplies the base weight.
+const BASE_WEIGHTS = {
+  faceRatio: 1.0,
+  faceLength: 0.95,
+  foreheadThird: 0.9,
+  midfaceThird: 0.8,
+  lowerFaceThird: 0.8,
+  foreheadWidth: 0.75,
+  jawWidth: 0.75,
   cheekbones: 0.55,
   chinProjection: 0.55,
-  eyeSpacing: 0.4,
+  eyeSpacing: 0.45,
   browPosition: 0.35,
   hairType: 0.5,
+  faceShape: 0.15,
 };
 
-function scoreDimension(harmony, key, weight, reasons, posText, negText) {
+// Maps a raw ratio to a 0–1 deviation intensity.
+// `center` is the balanced value, `threshold` is where it starts mattering,
+// `extreme` is a strong deviation. Returns 0 when at center, 1 at extreme.
+function deviationScale(value, center, threshold, extreme) {
+  const dist = Math.abs(value - center);
+  if (dist <= threshold) return 0;
+  return Math.min(1, (dist - threshold) / (extreme - threshold));
+}
+
+function scoreDimension(harmony, key, weight, deviation, reasons, posText, negText) {
   const benefit = harmony[key] || 0;
-  const s = (benefit + 1) / 2 * weight;
-  if (posText && benefit > 0.3) reasons.push({ type: "positive", text: posText });
-  if (negText && benefit < -0.3) reasons.push({ type: "negative", text: negText });
-  return { score: s, max: weight };
+  const effectiveWeight = weight * deviation;
+  const s = (benefit + 1) / 2 * effectiveWeight;
+  if (posText && benefit > 0.3 && deviation > 0.2) reasons.push({ type: "positive", text: posText });
+  if (negText && benefit < -0.3 && deviation > 0.2) reasons.push({ type: "negative", text: negText });
+  return { score: s, max: effectiveWeight };
 }
 
 export function scoreHairstyle(style, classification) {
@@ -214,191 +225,191 @@ export function scoreHairstyle(style, classification) {
 
   const add = (s, m) => { score += s; maxScore += m; };
 
-  // === Face shape affinity ===
-  const shapeScore = style.faceShapeAffinity[faceShape] || 0.5;
-  add(shapeScore * WEIGHTS.faceShape, WEIGHTS.faceShape);
-  if (shapeScore >= 0.8) reasons.push({ type: "positive", text: `Suits your ${faceShape} face shape` });
-  else if (shapeScore <= 0.4) reasons.push({ type: "negative", text: `Not ideal for ${faceShape} face shapes` });
-
-  // === Face ratio (width-to-height) ===
-  if (faceRatio === "narrow") {
-    const r = scoreDimension(harmony, "narrowFace", WEIGHTS.faceRatio, reasons,
+  // === Face ratio (width-to-height) — continuous from proportions ===
+  const ratioValue = proportions?.faceRatio?.value ?? 1.55;
+  // Deviation from golden ratio 1.618; threshold 0.07, extreme 0.25
+  const ratioDev = deviationScale(ratioValue, 1.618, 0.07, 0.25);
+  if (ratioValue > 1.618) {
+    const r = scoreDimension(harmony, "narrowFace", BASE_WEIGHTS.faceRatio, ratioDev, reasons,
       "Adds width to balance your narrow face",
       "May make your face look even narrower");
     add(r.score, r.max);
-  } else if (faceRatio === "wide") {
-    const r = scoreDimension(harmony, "wideFace", WEIGHTS.faceRatio, reasons,
-      "Elongates your wide face",
+  } else {
+    const r = scoreDimension(harmony, "wideFace", BASE_WEIGHTS.faceRatio, ratioDev, reasons,
+      "Elongates your wider face",
       "May make your face look wider");
     add(r.score, r.max);
+  }
+
+  // === Face length — continuous from lengthCheekRatio ===
+  const lcr = proportions?.faceShape?.lengthCheekRatio ?? 1.35;
+  // Center 1.35, threshold 0.1, extreme 0.3
+  const lengthDev = deviationScale(lcr, 1.35, 0.1, 0.3);
+  if (lcr > 1.35) {
+    const r = scoreDimension(harmony, "longFace", BASE_WEIGHTS.faceLength, lengthDev, reasons,
+      "Breaks up your long face with horizontal elements",
+      "Elongates an already long face");
+    add(r.score, r.max);
   } else {
-    add(0.5 * WEIGHTS.faceRatio, WEIGHTS.faceRatio);
+    const r = scoreDimension(harmony, "shortFace", BASE_WEIGHTS.faceLength, lengthDev, reasons,
+      "Adds height to your shorter face",
+      "May make your face look shorter");
+    add(r.score, r.max);
   }
 
-  // === Face length ===
-  if (proportions?.faceShape) {
-    const lr = proportions.faceShape.lengthCheekRatio;
-    if (lr > 1.5) {
-      const r = scoreDimension(harmony, "longFace", WEIGHTS.faceLength, reasons,
-        "Breaks up your long face with horizontal elements",
-        "Elongates an already long face");
-      add(r.score, r.max);
-    } else if (lr < 1.2) {
-      const r = scoreDimension(harmony, "shortFace", WEIGHTS.faceLength, reasons,
-        "Adds height to your shorter face",
-        "May make your face look shorter");
-      add(r.score, r.max);
-    } else {
-      add(0.5 * WEIGHTS.faceLength, WEIGHTS.faceLength);
-    }
-  }
-
-  // === Facial thirds ===
-  if (facialThirds && facialThirds !== "balanced") {
-    if (facialThirds.includes("long forehead")) {
-      const r = scoreDimension(harmony, "longForehead", WEIGHTS.foreheadThird, reasons,
+  // === Facial thirds — continuous deviations ===
+  const thirds = proportions?.facialThirds;
+  if (thirds) {
+    const fdAbs = Math.abs(thirds.foreheadDeviation || 0);
+    const fdSign = (thirds.foreheadDeviation || 0) > 0;
+    // threshold 0.1, extreme 0.35
+    const fdDev = Math.min(1, Math.max(0, (fdAbs - 0.1) / 0.25));
+    if (fdSign) {
+      const r = scoreDimension(harmony, "longForehead", BASE_WEIGHTS.foreheadThird, fdDev, reasons,
         "Covers/shortens your longer forehead",
         "Exposes your forehead fully");
       add(r.score, r.max);
-    } else if (facialThirds.includes("short forehead")) {
-      const r = scoreDimension(harmony, "shortForehead", WEIGHTS.foreheadThird, reasons,
+    } else {
+      const r = scoreDimension(harmony, "shortForehead", BASE_WEIGHTS.foreheadThird, fdDev, reasons,
         "Opens up and extends your forehead",
         "Covers an already short forehead");
       add(r.score, r.max);
-    } else {
-      add(0.5 * WEIGHTS.foreheadThird, WEIGHTS.foreheadThird);
     }
 
-    if (facialThirds.includes("long midface")) {
-      const r = scoreDimension(harmony, "longMidface", WEIGHTS.midfaceThird, reasons,
+    const mdAbs = Math.abs(thirds.midfaceDeviation || 0);
+    const mdSign = (thirds.midfaceDeviation || 0) > 0;
+    const mdDev = Math.min(1, Math.max(0, (mdAbs - 0.1) / 0.25));
+    if (mdSign) {
+      const r = scoreDimension(harmony, "longMidface", BASE_WEIGHTS.midfaceThird, mdDev, reasons,
         "Adds width at cheekbone level to compress the midface",
         "Doesn't interrupt the long midface");
       add(r.score, r.max);
-    } else if (facialThirds.includes("short midface")) {
-      const r = scoreDimension(harmony, "shortMidface", WEIGHTS.midfaceThird, reasons,
+    } else {
+      const r = scoreDimension(harmony, "shortMidface", BASE_WEIGHTS.midfaceThird, mdDev, reasons,
         "Keeps the midface visually open",
         "Compresses an already short midface");
       add(r.score, r.max);
-    } else {
-      add(0.5 * WEIGHTS.midfaceThird, WEIGHTS.midfaceThird);
     }
 
-    if (facialThirds.includes("long lower face")) {
-      const r = scoreDimension(harmony, "longLowerFace", WEIGHTS.lowerFaceThird, reasons,
+    const ldAbs = Math.abs(thirds.lowerFaceDeviation || 0);
+    const ldSign = (thirds.lowerFaceDeviation || 0) > 0;
+    const ldDev = Math.min(1, Math.max(0, (ldAbs - 0.1) / 0.25));
+    if (ldSign) {
+      const r = scoreDimension(harmony, "longLowerFace", BASE_WEIGHTS.lowerFaceThird, ldDev, reasons,
         "Creates a visual break across the lower face",
         "Extends the visual length of the lower face");
       add(r.score, r.max);
-    } else if (facialThirds.includes("short lower face")) {
-      const r = scoreDimension(harmony, "shortLowerFace", WEIGHTS.lowerFaceThird, reasons,
+    } else {
+      const r = scoreDimension(harmony, "shortLowerFace", BASE_WEIGHTS.lowerFaceThird, ldDev, reasons,
         "Extends the visual lower face with length",
         "Cuts off at the jaw, emphasizing short lower face");
       add(r.score, r.max);
-    } else {
-      add(0.5 * WEIGHTS.lowerFaceThird, WEIGHTS.lowerFaceThird);
     }
+  }
+
+  // === Forehead width — continuous from foreheadCheekRatio ===
+  const fcr = proportions?.faceShape?.foreheadCheekRatio ?? 0.85;
+  // Center 0.85, threshold 0.05, extreme 0.2
+  const fwDev = deviationScale(fcr, 0.85, 0.05, 0.2);
+  if (fcr > 0.85) {
+    const r = scoreDimension(harmony, "wideForehead", BASE_WEIGHTS.foreheadWidth, fwDev, reasons,
+      "Covers the edges of your wide forehead",
+      "Exposes your wide forehead");
+    add(r.score, r.max);
   } else {
-    add(0.5 * WEIGHTS.foreheadThird, WEIGHTS.foreheadThird);
-    add(0.5 * WEIGHTS.midfaceThird, WEIGHTS.midfaceThird);
-    add(0.5 * WEIGHTS.lowerFaceThird, WEIGHTS.lowerFaceThird);
+    const r = scoreDimension(harmony, "narrowForehead", BASE_WEIGHTS.foreheadWidth, fwDev, reasons,
+      "Adds volume at the temples to widen the forehead",
+      "Makes a narrow forehead look narrower");
+    add(r.score, r.max);
   }
 
-  // === Forehead width ===
-  if (proportions?.faceShape) {
-    const fcr = proportions.faceShape.foreheadCheekRatio;
-    if (fcr > 0.95) {
-      const r = scoreDimension(harmony, "wideForehead", WEIGHTS.foreheadWidth, reasons,
-        "Covers the edges of your wide forehead",
-        "Exposes your wide forehead");
-      add(r.score, r.max);
-    } else if (fcr < 0.75) {
-      const r = scoreDimension(harmony, "narrowForehead", WEIGHTS.foreheadWidth, reasons,
-        "Adds volume at the temples to widen the forehead",
-        "Makes a narrow forehead look narrower");
-      add(r.score, r.max);
-    } else {
-      add(0.5 * WEIGHTS.foreheadWidth, WEIGHTS.foreheadWidth);
-    }
+  // === Jaw width — continuous from jawCheekRatio ===
+  const jcr = proportions?.faceShape?.jawCheekRatio ?? 0.80;
+  // Center 0.80, threshold 0.04, extreme 0.18
+  const jwDev = deviationScale(jcr, 0.80, 0.04, 0.18);
+  if (jcr > 0.80) {
+    const r = scoreDimension(harmony, "wideJaw", BASE_WEIGHTS.jawWidth, jwDev, reasons,
+      "Softens your strong jawline",
+      "Emphasizes a wide jaw");
+    add(r.score, r.max);
+  } else {
+    const r = scoreDimension(harmony, "narrowJaw", BASE_WEIGHTS.jawWidth, jwDev, reasons,
+      "Adds volume around a narrow jawline",
+      "Doesn't add volume where the jaw is narrow");
+    add(r.score, r.max);
   }
 
-  // === Jaw width ===
-  if (proportions?.faceShape) {
-    const jcr = proportions.faceShape.jawCheekRatio;
-    if (jcr > 0.88) {
-      const r = scoreDimension(harmony, "wideJaw", WEIGHTS.jawWidth, reasons,
-        "Softens your strong jawline",
-        "Emphasizes a wide jaw");
-      add(r.score, r.max);
-    } else if (jcr < 0.72) {
-      const r = scoreDimension(harmony, "narrowJaw", WEIGHTS.jawWidth, reasons,
-        "Adds volume around a narrow jawline",
-        "Doesn't add volume where the jaw is narrow");
-      add(r.score, r.max);
-    } else {
-      add(0.5 * WEIGHTS.jawWidth, WEIGHTS.jawWidth);
-    }
-  }
-
-  // === Cheekbone prominence ===
-  if (faceShape === "diamond") {
-    const r = scoreDimension(harmony, "prominentCheekbones", WEIGHTS.cheekbones, reasons,
+  // === Cheekbone prominence — derived from face shape ratios ===
+  // High cheekbone-to-jaw ratio = prominent; low = flat
+  if (jcr < 0.75) {
+    const cbDev = deviationScale(jcr, 0.80, 0.05, 0.15);
+    const r = scoreDimension(harmony, "prominentCheekbones", BASE_WEIGHTS.cheekbones, cbDev, reasons,
       "Works with your prominent cheekbones", null);
     add(r.score, r.max);
-  } else if (faceShape === "round" || faceShape === "square") {
-    const r = scoreDimension(harmony, "flatCheekbones", WEIGHTS.cheekbones, reasons,
+  } else if (jcr > 0.90) {
+    const cbDev = deviationScale(jcr, 0.80, 0.1, 0.2);
+    const r = scoreDimension(harmony, "flatCheekbones", BASE_WEIGHTS.cheekbones, cbDev, reasons,
       "Builds cheekbone definition with volume", null);
     add(r.score, r.max);
   } else {
-    add(0.5 * WEIGHTS.cheekbones, WEIGHTS.cheekbones);
+    add(0.5 * BASE_WEIGHTS.cheekbones * 0.3, BASE_WEIGHTS.cheekbones * 0.3);
   }
 
   // === Chin projection ===
+  const chinDev = proportions?.chin?.ratio
+    ? deviationScale(proportions.chin.ratio, 1.0, 0.1, 0.35)
+    : 0.5;
   if (chinProjection === "short") {
-    const r = scoreDimension(harmony, "shortChin", WEIGHTS.chinProjection, reasons,
+    const r = scoreDimension(harmony, "shortChin", BASE_WEIGHTS.chinProjection, chinDev, reasons,
       "Adds fullness around the chin area",
       "Doesn't compensate for a recessed chin");
     add(r.score, r.max);
   } else if (chinProjection === "long") {
-    const r = scoreDimension(harmony, "longChin", WEIGHTS.chinProjection, reasons,
+    const r = scoreDimension(harmony, "longChin", BASE_WEIGHTS.chinProjection, chinDev, reasons,
       "Draws attention upward from a prominent chin",
       "Emphasizes a prominent chin");
     add(r.score, r.max);
   } else {
-    add(0.5 * WEIGHTS.chinProjection, WEIGHTS.chinProjection);
+    add(0.5 * BASE_WEIGHTS.chinProjection * 0.2, BASE_WEIGHTS.chinProjection * 0.2);
   }
 
-  // === Eye spacing ===
-  if (eyeSpacing === "wide-set") {
-    const r = scoreDimension(harmony, "wideSetEyes", WEIGHTS.eyeSpacing, reasons,
+  // === Eye spacing — continuous from eye spacing ratio ===
+  const esr = proportions?.eyeSpacing?.ratio ?? 1.0;
+  const esDev = deviationScale(esr, 1.0, 0.1, 0.35);
+  if (esr > 1.0) {
+    const r = scoreDimension(harmony, "wideSetEyes", BASE_WEIGHTS.eyeSpacing, esDev, reasons,
       "Center weight draws wide-set eyes inward", null);
     add(r.score, r.max);
-  } else if (eyeSpacing === "close-set") {
-    const r = scoreDimension(harmony, "closeSetEyes", WEIGHTS.eyeSpacing, reasons,
+  } else {
+    const r = scoreDimension(harmony, "closeSetEyes", BASE_WEIGHTS.eyeSpacing, esDev, reasons,
       "Side-swept styling draws close-set eyes outward", null);
     add(r.score, r.max);
-  } else {
-    add(0.5 * WEIGHTS.eyeSpacing, WEIGHTS.eyeSpacing);
   }
 
   // === Brow position ===
-  if (browPosition === "high-set") {
-    const r = scoreDimension(harmony, "highBrows", WEIGHTS.browPosition, reasons,
+  const browGap = proportions?.brows?.avgBrowEyeGap ?? 0.027;
+  const browDev = deviationScale(browGap, 0.027, 0.005, 0.015);
+  if (browGap > 0.027) {
+    const r = scoreDimension(harmony, "highBrows", BASE_WEIGHTS.browPosition, browDev, reasons,
       null, null);
     add(r.score, r.max);
-  } else if (browPosition === "low-set") {
-    const r = scoreDimension(harmony, "lowBrows", WEIGHTS.browPosition, reasons,
+  } else {
+    const r = scoreDimension(harmony, "lowBrows", BASE_WEIGHTS.browPosition, browDev, reasons,
       null, "Heavy bangs crowd already low-set brows");
     add(r.score, r.max);
-  } else {
-    add(0.5 * WEIGHTS.browPosition, WEIGHTS.browPosition);
   }
 
   // === Hair type compatibility ===
   const ht = hairType === "unknown" ? "straight" : hairType;
   const htMatch = style.hairTypes.includes(ht) ? 1.0 : 0.1;
-  add(htMatch * WEIGHTS.hairType, WEIGHTS.hairType);
+  add(htMatch * BASE_WEIGHTS.hairType, BASE_WEIGHTS.hairType);
   if (!style.hairTypes.includes(ht)) {
     reasons.push({ type: "negative", text: `Not designed for ${ht} hair` });
   }
+
+  // === Face shape — minor tiebreaker only ===
+  const shapeScore = style.faceShapeAffinity[faceShape] || 0.5;
+  add(shapeScore * BASE_WEIGHTS.faceShape, BASE_WEIGHTS.faceShape);
 
   const normalizedScore = maxScore > 0 ? score / maxScore : 0.5;
   return { style, score: normalizedScore, reasons };
