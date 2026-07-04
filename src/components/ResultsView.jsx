@@ -1,4 +1,5 @@
 import { useState } from "react";
+import HairTryOn from "./HairTryOn.jsx";
 
 function Card({ item }) {
   if (!item) return null;
@@ -80,7 +81,7 @@ const SHAPE_DESCRIPTIONS = {
   triangle: "Broader jaw, narrower forehead",
 };
 
-export default function ResultsView({ classification, recommendations, gender, frontPhoto, landmarks }) {
+export default function ResultsView({ classification, recommendations, gender, frontPhoto, landmarks, frontDims, frontImageData }) {
   const isMen = gender === "men";
 
   return (
@@ -202,6 +203,23 @@ export default function ResultsView({ classification, recommendations, gender, f
           </>
         )}
       </Section>
+
+      {landmarks && frontDims && (
+        <Section title="Hair Try-On" defaultOpen={false}>
+          <p className="text-sm text-clay mb-3">
+            See how different hairstyles look on your face. Styles are ranked by how well they harmonize with your proportions.
+          </p>
+          <HairTryOn
+            frontPhotoUrl={frontPhoto}
+            landmarks={landmarks}
+            imageWidth={frontDims.width}
+            imageHeight={frontDims.height}
+            classification={classification}
+            gender={gender}
+            frontImageData={frontImageData}
+          />
+        </Section>
+      )}
 
       {isMen && recommendations.facialHair && (
         <Section title="Facial Hair">

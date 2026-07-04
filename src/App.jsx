@@ -42,6 +42,7 @@ export default function App() {
   const [progress, setProgress] = useState("");
   const [frontLandmarks, setFrontLandmarks] = useState(null);
   const [frontDims, setFrontDims] = useState(null);
+  const [frontImgData, setFrontImgData] = useState(null);
   const [profilerReady, setProfilerReady] = useState(false);
   const [confirmSlot, setConfirmSlot] = useState(null);
 
@@ -191,13 +192,13 @@ export default function App() {
       setProgress("Classifying features...");
 
       const frontImg = imgs.front;
-      const frontImgData = getImageData(frontImg);
+      const frontImageDataLocal = getImageData(frontImg);
       const w = frontImg.naturalWidth || frontImg.width;
       const h = frontImg.naturalHeight || frontImg.height;
 
       const result = analyzeFace(
         mpResults.front.landmarks,
-        frontImgData,
+        frontImageDataLocal,
         w,
         h,
         mpResults.leftProfile?.landmarks || null,
@@ -209,6 +210,7 @@ export default function App() {
 
       setFrontLandmarks(mpResults.front.landmarks);
       setFrontDims({ width: w, height: h });
+      setFrontImgData(frontImageDataLocal);
 
       setProgress("Generating recommendations...");
 
@@ -231,6 +233,7 @@ export default function App() {
     setRecommendations(null);
     setFrontLandmarks(null);
     setFrontDims(null);
+    setFrontImgData(null);
     setError(null);
     setConfirmSlot(null);
     imageRefs.current = {};
@@ -465,6 +468,8 @@ export default function App() {
               gender={gender}
               frontPhoto={photos.front}
               landmarks={frontLandmarks}
+              frontDims={frontDims}
+              frontImageData={frontImgData}
             />
           </div>
         )}
