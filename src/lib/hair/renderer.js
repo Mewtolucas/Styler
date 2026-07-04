@@ -1,6 +1,8 @@
-// Canvas-based hair silhouette renderer.
-// Draws parametric hair shapes anchored to facial landmarks,
-// adjustable in height and width, with dynamic coloring.
+// Strand-based hair renderer.
+// Draws realistic hair using individual bezier curve strands
+// with color gradients, depth layers, highlights, and texture variation.
+// Strands are grouped into clumps for natural appearance and flow
+// away from a part line, curving around the face.
 
 const FACE_OVAL_INDICES = [
   10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288, 397, 365, 379,
@@ -21,7 +23,7 @@ function lerp(a, b, t) {
   return { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t };
 }
 
-function dist(a, b) {
+function pointDist(a, b) {
   return Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
 }
 
@@ -41,8 +43,8 @@ export function getAnchorPoints(landmarks, canvasWidth, canvasHeight) {
   const rightCheek = lm(landmarks, 356, canvasWidth, canvasHeight);
   const noseBottom = lm(landmarks, 2, canvasWidth, canvasHeight);
 
-  const faceWidth = dist(leftTemple, rightTemple);
-  const faceHeight = dist(top, chin);
+  const faceWidth = pointDist(leftTemple, rightTemple);
+  const faceHeight = pointDist(top, chin);
   const center = midpoint(leftTemple, rightTemple);
 
   return {
@@ -53,239 +55,421 @@ export function getAnchorPoints(landmarks, canvasWidth, canvasHeight) {
   };
 }
 
-function buildHairPath(ctx, anchors, profile, heightMul, widthMul) {
-  const { top, leftTemple, rightTemple, leftEar, rightEar,
-    leftJaw, rightJaw, chin, faceWidth, faceHeight, center } = anchors;
+// ===== Color utilities =====
 
-  const crownH = faceHeight * profile.crownHeight * heightMul;
-  const sideV = faceWidth * profile.sideVolume * widthMul;
-  const backLen = faceHeight * profile.backLength * heightMul;
+function parseHexColor(hex) {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return { r, g, b };
+}
 
-  const crownTop = { x: center.x, y: top.y - crownH };
+function rgba(c, a) {
+  return `rgba(${Math.round(c.r)},${Math.round(c.g)},${Math.round(c.b)},${a})`;
+}
 
-  const leftCrown = { x: leftTemple.x - sideV, y: top.y - crownH * 0.6 };
-  const rightCrown = { x: rightTemple.x + sideV, y: top.y - crownH * 0.6 };
+function darken(c, f) {
+  return { r: c.r * f, g: c.g * f, b: c.b * f };
+}
 
-  const leftSide = { x: leftEar.x - sideV, y: leftEar.y };
-  const rightSide = { x: rightEar.x + sideV, y: rightEar.y };
+function lighten(c, f) {
+  return { r: c.r + (255 - c.r) * f, g: c.g + (255 - c.g) * f, b: c.b + (255 - c.b) * f };
+}
 
-  let leftBottom, rightBottom;
+// ===== Seeded RNG =====
+
+function seededRandom(seed) {
+  let s = Math.abs(seed) || 1;
+  return function () {
+    s = (s * 16807) % 2147483647;
+    return (s - 1) / 2147483646;
+  };
+}
+
+// ===== Hair geometry computation =====
+
+function getEndY(profile, anchors, hMul) {
+  const { leftEar, rightEar, leftJaw, rightJaw, chin, faceHeight } = anchors;
   const ll = profile.lengthLevel;
+  const earY = (leftEar.y + rightEar.y) / 2;
+  const jawY = (leftJaw.y + rightJaw.y) / 2;
+  if (ll === "pulled-up" || ll === "shaved-sides" || ll === "above-ear")
+    return earY - faceHeight * 0.03 * hMul;
+  if (ll === "ear") return earY + faceHeight * 0.05 * hMul;
+  if (ll === "below-ear") return jawY - faceHeight * 0.03 * hMul;
+  if (ll === "chin") return chin.y + faceHeight * 0.02;
+  if (ll === "shoulder") return chin.y + faceHeight * 0.3 * hMul;
+  if (ll === "chest") return chin.y + faceHeight * 0.55 * hMul;
+  return earY;
+}
 
-  if (ll === "above-ear") {
-    leftBottom = { x: leftTemple.x - sideV * 0.5, y: leftEar.y - faceHeight * 0.05 };
-    rightBottom = { x: rightTemple.x + sideV * 0.5, y: rightEar.y - faceHeight * 0.05 };
-  } else if (ll === "ear") {
-    leftBottom = { x: leftEar.x - sideV * 0.5, y: leftEar.y + faceHeight * 0.05 };
-    rightBottom = { x: rightEar.x + sideV * 0.5, y: rightEar.y + faceHeight * 0.05 };
-  } else if (ll === "below-ear") {
-    leftBottom = { x: leftJaw.x - sideV * 0.3, y: leftJaw.y - faceHeight * 0.05 };
-    rightBottom = { x: rightJaw.x + sideV * 0.3, y: rightJaw.y - faceHeight * 0.05 };
-  } else if (ll === "chin") {
-    leftBottom = { x: leftJaw.x - sideV * 0.2, y: chin.y };
-    rightBottom = { x: rightJaw.x + sideV * 0.2, y: chin.y };
-  } else if (ll === "shoulder") {
-    leftBottom = { x: leftJaw.x - sideV * 0.1, y: chin.y + faceHeight * 0.25 };
-    rightBottom = { x: rightJaw.x + sideV * 0.1, y: chin.y + faceHeight * 0.25 };
-  } else if (ll === "chest") {
-    leftBottom = { x: leftJaw.x, y: chin.y + faceHeight * 0.5 };
-    rightBottom = { x: rightJaw.x, y: chin.y + faceHeight * 0.5 };
-  } else if (ll === "pulled-up" || ll === "shaved-sides") {
-    leftBottom = { x: leftTemple.x, y: leftEar.y };
-    rightBottom = { x: rightTemple.x, y: rightEar.y };
-  } else {
-    leftBottom = { x: leftEar.x - sideV * 0.5, y: leftEar.y };
-    rightBottom = { x: rightEar.x + sideV * 0.5, y: rightEar.y };
-  }
+function computeBounds(anchors, profile, hMul, wMul) {
+  const { top, leftTemple, rightTemple, faceWidth, faceHeight, center } = anchors;
+  const crownH = faceHeight * profile.crownHeight * hMul;
+  const sideV = faceWidth * profile.sideVolume * wMul;
+  const endY = getEndY(profile, anchors, hMul);
+  return {
+    crownY: top.y - crownH, leftX: leftTemple.x - sideV,
+    rightX: rightTemple.x + sideV, endY, crownH, sideV,
+    centerX: center.x, topY: top.y,
+  };
+}
 
-  // Back of head extension
-  const backBottom = { x: center.x, y: Math.max(leftBottom.y, rightBottom.y) + backLen };
+// ===== Face mask: clear the face area so strands don't cover it =====
 
+function clearFaceRegion(ctx, landmarks, W, H) {
+  ctx.save();
+  ctx.globalCompositeOperation = "destination-out";
   ctx.beginPath();
 
-  // Start from left bottom, go up left side
-  ctx.moveTo(leftBottom.x, leftBottom.y);
+  // Use the face oval landmarks to trace face boundary
+  // Then inset slightly so hair overlaps the hairline naturally
+  const pts = FACE_OVAL_INDICES.map(i => lm(landmarks, i, W, H));
 
-  // Left side up to left crown
-  ctx.bezierCurveTo(
-    leftSide.x - sideV * 0.3, leftSide.y,
-    leftCrown.x - sideV * 0.2, leftCrown.y + crownH * 0.3,
-    leftCrown.x, leftCrown.y
-  );
+  if (pts.length < 3) { ctx.restore(); return; }
 
-  // Crown arc
-  ctx.bezierCurveTo(
-    leftCrown.x + (crownTop.x - leftCrown.x) * 0.4, crownTop.y - crownH * 0.1,
-    crownTop.x - (crownTop.x - leftCrown.x) * 0.1, crownTop.y,
-    crownTop.x, crownTop.y
-  );
+  const cx = pts.reduce((s, p) => s + p.x, 0) / pts.length;
+  const cy = pts.reduce((s, p) => s + p.y, 0) / pts.length;
 
-  ctx.bezierCurveTo(
-    crownTop.x + (rightCrown.x - crownTop.x) * 0.1, crownTop.y,
-    rightCrown.x - (rightCrown.x - crownTop.x) * 0.4, crownTop.y - crownH * 0.1,
-    rightCrown.x, rightCrown.y
-  );
+  // Inset toward center so hair overlaps hairline naturally
+  const inset = 0.88;
+  const insetPts = pts.map(p => ({
+    x: cx + (p.x - cx) * inset,
+    y: cy + (p.y - cy) * inset,
+  }));
 
-  // Right side down
-  ctx.bezierCurveTo(
-    rightCrown.x + sideV * 0.2, rightCrown.y + crownH * 0.3,
-    rightSide.x + sideV * 0.3, rightSide.y,
-    rightBottom.x, rightBottom.y
-  );
-
-  // Bottom — connect through back
-  if (ll === "shoulder" || ll === "chest") {
-    ctx.bezierCurveTo(
-      rightBottom.x, rightBottom.y + backLen * 0.3,
-      backBottom.x + faceWidth * 0.2, backBottom.y,
-      backBottom.x, backBottom.y
-    );
-    ctx.bezierCurveTo(
-      backBottom.x - faceWidth * 0.2, backBottom.y,
-      leftBottom.x, leftBottom.y + backLen * 0.3,
-      leftBottom.x, leftBottom.y
-    );
-  } else {
-    ctx.lineTo(rightBottom.x, rightBottom.y);
-    // Close via back
-    ctx.bezierCurveTo(
-      rightBottom.x + sideV * 0.1, rightBottom.y + backLen * 0.5,
-      leftBottom.x - sideV * 0.1, leftBottom.y + backLen * 0.5,
-      leftBottom.x, leftBottom.y
-    );
+  ctx.moveTo(insetPts[0].x, insetPts[0].y);
+  for (let i = 1; i < insetPts.length; i++) {
+    const prev = insetPts[i - 1];
+    const curr = insetPts[i];
+    const next = insetPts[Math.min(i + 1, insetPts.length - 1)];
+    const mx = (curr.x + next.x) / 2;
+    const my = (curr.y + next.y) / 2;
+    ctx.quadraticCurveTo(curr.x, curr.y, mx, my);
   }
-
   ctx.closePath();
+
+  // Feathered edge using radial gradient would be ideal but complex;
+  // instead use a solid clear with slight feather via shadow
+  ctx.fillStyle = "rgba(0,0,0,1)";
+  ctx.filter = "blur(4px)";
+  ctx.fill();
+  ctx.filter = "none";
+  ctx.restore();
 }
 
-function buildBangsPath(ctx, anchors, profile, heightMul, widthMul) {
-  const { top, leftTemple, rightTemple, leftHairline, rightHairline,
-    browCenter, faceWidth, faceHeight, center } = anchors;
+// ===== Strand generation =====
 
-  const bangDrop = faceHeight * profile.bangDrop * heightMul;
-  if (bangDrop < 2) return;
+// A "clump" is a group of strands that flow together
+function generateClump(rootX, rootY, endY, flowAngle, spread, count, texture, rng, fW) {
+  const strands = [];
+  for (let i = 0; i < count; i++) {
+    const offX = (rng() - 0.5) * spread;
+    const offY = (rng() - 0.5) * spread * 0.3;
+    const sRootX = rootX + offX;
+    const sRootY = rootY + offY;
+
+    const length = endY - sRootY;
+    if (length < 5) continue;
+
+    const segments = Math.max(3, Math.min(8, Math.ceil(Math.abs(length) / (fW * 0.06))));
+    const points = [{ x: sRootX, y: sRootY }];
+
+    const baseFlowX = Math.sin(flowAngle) * 0.7;
+    const baseFlowY = Math.cos(flowAngle) * 0.3;
+
+    for (let j = 1; j <= segments; j++) {
+      const t = j / segments;
+
+      // Base flow: gentle outward curve
+      let x = sRootX + baseFlowX * t * fW * 0.2;
+      let y = sRootY + length * t;
+
+      // Gravity: strands curve downward more at the ends
+      x += baseFlowX * t * t * fW * 0.08;
+
+      // Texture displacement
+      const phase = rng() * Math.PI * 2;
+      if (texture === "wavy") {
+        x += Math.sin(t * Math.PI * 2.5 + phase) * fW * 0.015 * (0.4 + t);
+      } else if (texture === "curly") {
+        const curl = fW * 0.022 * (0.4 + t * 0.8);
+        x += Math.sin(t * Math.PI * 5 + phase) * curl;
+        y += Math.cos(t * Math.PI * 4 + phase) * curl * 0.4;
+      } else if (texture === "coily") {
+        const coil = fW * 0.018;
+        x += Math.sin(t * Math.PI * 8 + phase) * coil;
+        y += Math.cos(t * Math.PI * 7 + phase) * coil * 0.6;
+      }
+
+      // Per-strand randomness (within clump cohesion)
+      x += (rng() - 0.5) * fW * 0.004;
+
+      points.push({ x, y });
+    }
+
+    strands.push({
+      points,
+      width: fW * (0.003 + rng() * 0.005),
+      colorShift: (rng() - 0.5) * 15,
+      alpha: 0.5 + rng() * 0.35,
+      isHighlight: rng() < 0.06,
+    });
+  }
+  return strands;
+}
+
+function generateAllStrands(bounds, profile, anchors, hMul, wMul, rng, texture) {
+  const { crownY, leftX, rightX, endY, centerX, topY, sideV, crownH } = bounds;
+  const { faceWidth, faceHeight, leftTemple, rightTemple, leftEar, rightEar } = anchors;
+
+  const allStrands = [];
+  const hairWidth = rightX - leftX;
+  const isShort = ["above-ear", "ear", "pulled-up", "shaved-sides"].includes(profile.lengthLevel);
+  const isMed = ["below-ear", "chin"].includes(profile.lengthLevel);
+
+  // Part line position
+  const bt = profile.bangType;
+  const partRatio = (bt === "side-swept" || bt === "side-swept-short") ? 0.3
+    : bt === "curtain" ? 0.5 : 0.5;
+  const partX = leftX + hairWidth * partRatio;
+
+  // Clump parameters — high density for realistic look
+  const clumpCount = isShort ? 40 : isMed ? 55 : 70;
+  const strandsPerClump = texture === "coily" ? 14 : texture === "curly" ? 12 : 10;
+  const clumpSpread = faceWidth * (texture === "coily" ? 0.02 : texture === "curly" ? 0.025 : 0.03);
+
+  for (let c = 0; c < clumpCount; c++) {
+    const t = (c + rng() * 0.5) / clumpCount;
+    const rootX = leftX + hairWidth * t;
+    const rootY = crownY + rng() * crownH * 0.5;
+
+    // Flow direction: away from part
+    const relPos = (rootX - partX) / hairWidth;
+    const flowAngle = relPos * 0.8 + (rng() - 0.5) * 0.15;
+
+    // End Y varies: edge strands shorter, center strands reach full length
+    const edgeFactor = 1 - Math.pow(Math.abs(t - 0.5) * 2, 2) * 0.3;
+    let clumpEndY = topY + (endY - topY) * edgeFactor + (rng() - 0.5) * faceHeight * 0.04;
+
+    // For short styles, sides end higher
+    if (isShort) {
+      const sideAmount = Math.abs(t - 0.5) * 2;
+      clumpEndY = topY + (endY - topY) * (0.6 + (1 - sideAmount) * 0.4);
+    }
+
+    const clump = generateClump(
+      rootX, rootY, clumpEndY, flowAngle,
+      clumpSpread, strandsPerClump, texture, rng, faceWidth
+    );
+    allStrands.push(...clump);
+  }
+
+  // Add flyaway strands at edges for natural look
+  for (let i = 0; i < 20; i++) {
+    const side = rng() < 0.5 ? 0 : 1;
+    const rootX = side === 0
+      ? leftX + rng() * hairWidth * 0.15
+      : rightX - rng() * hairWidth * 0.15;
+    const rootY = crownY + rng() * crownH;
+    const flowAngle = side === 0 ? -0.5 - rng() * 0.3 : 0.5 + rng() * 0.3;
+    const flyEndY = rootY + (endY - rootY) * (0.3 + rng() * 0.4);
+
+    const strand = generateClump(rootX, rootY, flyEndY, flowAngle,
+      clumpSpread * 0.3, 2, texture, rng, faceWidth);
+    for (const s of strand) { s.alpha *= 0.5; s.width *= 0.7; }
+    allStrands.push(...strand);
+  }
+
+  return allStrands;
+}
+
+function generateBangStrands(bounds, profile, anchors, hMul, wMul, rng, texture) {
+  const { crownY, leftX, rightX, centerX, topY, sideV, crownH } = bounds;
+  const { faceWidth, faceHeight, leftHairline, rightHairline } = anchors;
+  const bangDrop = faceHeight * profile.bangDrop * hMul;
+  if (bangDrop < 3) return [];
 
   const bt = profile.bangType;
-  const sideV = faceWidth * profile.sideVolume * widthMul;
+  const strands = [];
+  const hlWidth = rightHairline.x - leftHairline.x;
+  const bangY = topY + bangDrop;
+
+  const clumpSpread = faceWidth * (texture === "curly" ? 0.02 : 0.025);
+  const spc = texture === "curly" ? 8 : 6;
 
   if (bt === "blunt-fringe" || bt === "short-fringe") {
-    const bangY = top.y + bangDrop;
-    ctx.beginPath();
-    ctx.moveTo(leftHairline.x - sideV * 0.2, top.y);
-    ctx.lineTo(rightHairline.x + sideV * 0.2, top.y);
-    ctx.lineTo(rightHairline.x + sideV * 0.1, bangY);
-    ctx.lineTo(leftHairline.x - sideV * 0.1, bangY);
-    ctx.closePath();
+    const count = 12;
+    for (let i = 0; i < count; i++) {
+      const t = (i + 0.5) / count;
+      const rx = leftHairline.x - sideV * 0.1 + (hlWidth + sideV * 0.2) * t;
+      const ry = topY - crownH * 0.15 + rng() * crownH * 0.2;
+      const ey = bangY + (rng() - 0.5) * faceHeight * 0.015;
+      const clump = generateClump(rx, ry, ey, (rng() - 0.5) * 0.1, clumpSpread, spc, texture, rng, faceWidth);
+      for (const s of clump) s.alpha = Math.min(s.alpha + 0.15, 0.85);
+      strands.push(...clump);
+    }
   } else if (bt === "curtain") {
-    const bangY = top.y + bangDrop;
-    const gapWidth = faceWidth * 0.05;
-    ctx.beginPath();
-    // Left curtain
-    ctx.moveTo(leftHairline.x - sideV * 0.3, top.y);
-    ctx.lineTo(center.x - gapWidth, top.y);
-    ctx.bezierCurveTo(
-      center.x - gapWidth, top.y + bangDrop * 0.3,
-      leftHairline.x - sideV * 0.1, bangY,
-      leftHairline.x - sideV * 0.4, bangY * 0.95 + top.y * 0.05
-    );
-    ctx.closePath();
-    // Right curtain
-    ctx.moveTo(center.x + gapWidth, top.y);
-    ctx.lineTo(rightHairline.x + sideV * 0.3, top.y);
-    ctx.lineTo(rightHairline.x + sideV * 0.4, bangY * 0.95 + top.y * 0.05);
-    ctx.bezierCurveTo(
-      rightHairline.x + sideV * 0.1, bangY,
-      center.x + gapWidth, top.y + bangDrop * 0.3,
-      center.x + gapWidth, top.y
-    );
-    ctx.closePath();
+    const gapW = faceWidth * 0.03;
+    for (let i = 0; i < 10; i++) {
+      const t = (i + 0.5) / 10;
+      const rx = leftHairline.x - sideV * 0.15 + (hlWidth + sideV * 0.3) * t;
+      if (Math.abs(rx - centerX) < gapW) continue;
+      const ry = topY - crownH * 0.1 + rng() * crownH * 0.15;
+      const distC = (rx - centerX) / hlWidth;
+      const ey = bangY + Math.abs(distC) * faceHeight * 0.04;
+      const flow = distC * 1.2;
+      const clump = generateClump(rx, ry, ey, flow, clumpSpread, spc, texture, rng, faceWidth);
+      for (const s of clump) s.alpha = Math.min(s.alpha + 0.12, 0.85);
+      strands.push(...clump);
+    }
   } else if (bt === "side-swept" || bt === "side-swept-short") {
-    const bangY = top.y + bangDrop;
-    ctx.beginPath();
-    ctx.moveTo(leftHairline.x - sideV * 0.2, top.y);
-    ctx.lineTo(rightHairline.x + sideV * 0.2, top.y);
-    ctx.bezierCurveTo(
-      rightHairline.x + sideV * 0.15, top.y + bangDrop * 0.3,
-      center.x + faceWidth * 0.1, bangY,
-      leftHairline.x - sideV * 0.1, bangY * 0.7 + top.y * 0.3
-    );
-    ctx.closePath();
+    for (let i = 0; i < 10; i++) {
+      const t = (i + 0.5) / 10;
+      const rx = leftHairline.x + hlWidth * t;
+      const ry = topY - crownH * 0.1 + rng() * crownH * 0.15;
+      const ey = bangY * (0.6 + t * 0.4) + topY * (0.4 - t * 0.4);
+      const clump = generateClump(rx, ry, ey, -0.5 - rng() * 0.3, clumpSpread, spc, texture, rng, faceWidth);
+      for (const s of clump) s.alpha = Math.min(s.alpha + 0.12, 0.85);
+      strands.push(...clump);
+    }
   } else if (bt === "textured-fringe") {
-    const bangY = top.y + bangDrop;
-    ctx.beginPath();
-    ctx.moveTo(leftHairline.x - sideV * 0.2, top.y);
-    ctx.lineTo(rightHairline.x + sideV * 0.2, top.y);
-    // Jagged bottom edge
-    const steps = 7;
-    const stepW = (rightHairline.x - leftHairline.x + sideV * 0.4) / steps;
-    for (let i = steps; i >= 0; i--) {
-      const px = rightHairline.x + sideV * 0.2 - (steps - i) * stepW;
-      const jag = i % 2 === 0 ? bangDrop * 0.15 : 0;
-      ctx.lineTo(px, bangY - jag);
+    for (let i = 0; i < 11; i++) {
+      const t = (i + 0.5) / 11;
+      const rx = leftHairline.x - sideV * 0.05 + (hlWidth + sideV * 0.1) * t;
+      const ry = topY - crownH * 0.15 + rng() * crownH * 0.2;
+      const ey = topY + bangDrop * (0.55 + rng() * 0.45);
+      const clump = generateClump(rx, ry, ey, (rng() - 0.5) * 0.3, clumpSpread * 0.8, spc, texture, rng, faceWidth);
+      for (const s of clump) s.alpha = Math.min(s.alpha + 0.1, 0.8);
+      strands.push(...clump);
     }
-    ctx.closePath();
   } else if (bt === "face-framing") {
-    const bangY = top.y + bangDrop;
-    ctx.beginPath();
-    // Left frame piece
-    ctx.moveTo(leftHairline.x - sideV * 0.2, top.y);
-    ctx.lineTo(leftHairline.x - sideV * 0.05, top.y);
-    ctx.bezierCurveTo(
-      leftHairline.x, top.y + bangDrop * 0.5,
-      leftHairline.x - sideV * 0.3, bangY,
-      leftHairline.x - sideV * 0.4, bangY + faceHeight * 0.1
-    );
-    ctx.lineTo(leftHairline.x - sideV * 0.5, top.y + faceHeight * 0.1);
-    ctx.closePath();
-    // Right frame piece
-    ctx.moveTo(rightHairline.x + sideV * 0.05, top.y);
-    ctx.lineTo(rightHairline.x + sideV * 0.2, top.y);
-    ctx.lineTo(rightHairline.x + sideV * 0.5, top.y + faceHeight * 0.1);
-    ctx.lineTo(rightHairline.x + sideV * 0.4, bangY + faceHeight * 0.1);
-    ctx.bezierCurveTo(
-      rightHairline.x + sideV * 0.3, bangY,
-      rightHairline.x, top.y + bangDrop * 0.5,
-      rightHairline.x + sideV * 0.05, top.y
-    );
-    ctx.closePath();
-  }
-}
-
-function addTextureLines(ctx, anchors, profile, heightMul, widthMul) {
-  const { top, leftTemple, rightTemple, faceWidth, faceHeight, center } = anchors;
-  const td = profile.textureDetail;
-  if (td === "minimal" || td === "smooth") return;
-
-  const sideV = faceWidth * profile.sideVolume * widthMul;
-  const crownH = faceHeight * profile.crownHeight * heightMul;
-  const lineCount = td === "heavy" ? 12 : td === "wavy" || td === "curly" ? 10 : 6;
-
-  ctx.strokeStyle = "rgba(0,0,0,0.08)";
-  ctx.lineWidth = 1;
-
-  for (let i = 0; i < lineCount; i++) {
-    const t = (i + 1) / (lineCount + 1);
-    const startX = leftTemple.x - sideV + (rightTemple.x + sideV - (leftTemple.x - sideV)) * t;
-    const startY = top.y - crownH * 0.5;
-    const endY = top.y + faceHeight * 0.3;
-
-    ctx.beginPath();
-    ctx.moveTo(startX, startY);
-
-    if (td === "wavy" || td === "curly") {
-      const amp = td === "curly" ? faceWidth * 0.02 : faceWidth * 0.01;
-      const steps = td === "curly" ? 8 : 5;
-      for (let j = 1; j <= steps; j++) {
-        const py = startY + (endY - startY) * (j / steps);
-        const px = startX + Math.sin(j * Math.PI) * amp * (j % 2 === 0 ? 1 : -1);
-        ctx.lineTo(px, py);
-      }
-    } else {
-      ctx.lineTo(startX + (center.x - startX) * 0.05, endY);
+    for (let i = 0; i < 5; i++) {
+      const t = (i + 0.5) / 5;
+      // Left framing
+      const lx = leftHairline.x - sideV * 0.25 + t * faceWidth * 0.06;
+      const ly = topY + rng() * crownH * 0.1;
+      const ley = bangY + faceHeight * 0.08 * (1 - t);
+      const lClump = generateClump(lx, ly, ley, -0.4, clumpSpread, spc - 1, texture, rng, faceWidth);
+      for (const s of lClump) s.alpha = Math.min(s.alpha + 0.12, 0.85);
+      strands.push(...lClump);
+      // Right framing
+      const rx2 = rightHairline.x + sideV * 0.25 - t * faceWidth * 0.06;
+      const ry2 = topY + rng() * crownH * 0.1;
+      const rey = bangY + faceHeight * 0.08 * (1 - t);
+      const rClump = generateClump(rx2, ry2, rey, 0.4, clumpSpread, spc - 1, texture, rng, faceWidth);
+      for (const s of rClump) s.alpha = Math.min(s.alpha + 0.12, 0.85);
+      strands.push(...rClump);
     }
-    ctx.stroke();
+  } else if (bt === "short-textured" || bt === "lifted" || bt === "natural" || bt === "variable") {
+    for (let i = 0; i < 8; i++) {
+      const t = (i + 0.5) / 8;
+      const rx = leftHairline.x + hlWidth * t;
+      const ry = topY - crownH * 0.2 + rng() * crownH * 0.2;
+      const ey = topY + bangDrop * (0.4 + rng() * 0.5);
+      const clump = generateClump(rx, ry, ey, (rng() - 0.5) * 0.3, clumpSpread * 0.7, spc - 1, texture, rng, faceWidth);
+      for (const s of clump) s.alpha = Math.min(s.alpha + 0.08, 0.75);
+      strands.push(...clump);
+    }
   }
+
+  return strands;
 }
+
+// ===== Rendering =====
+
+function drawStrand(ctx, strand, baseColor) {
+  const pts = strand.points;
+  if (pts.length < 2) return;
+
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x, pts[0].y);
+
+  for (let i = 1; i < pts.length; i++) {
+    if (i < pts.length - 1) {
+      const mx = (pts[i].x + pts[i + 1].x) / 2;
+      const my = (pts[i].y + pts[i + 1].y) / 2;
+      ctx.quadraticCurveTo(pts[i].x, pts[i].y, mx, my);
+    } else {
+      ctx.lineTo(pts[i].x, pts[i].y);
+    }
+  }
+
+  const shift = strand.colorShift;
+  const c = {
+    r: Math.max(0, Math.min(255, baseColor.r + shift)),
+    g: Math.max(0, Math.min(255, baseColor.g + shift * 0.8)),
+    b: Math.max(0, Math.min(255, baseColor.b + shift * 0.6)),
+  };
+
+  if (strand.isHighlight) {
+    const hl = lighten(c, 0.5);
+    ctx.strokeStyle = rgba(hl, strand.alpha * 0.4);
+    ctx.lineWidth = strand.width * 0.5;
+  } else {
+    // Gradient from dark roots to slightly lighter tips
+    const grad = ctx.createLinearGradient(
+      pts[0].x, pts[0].y,
+      pts[pts.length - 1].x, pts[pts.length - 1].y
+    );
+    const rootC = darken(c, 0.8);
+    const tipC = lighten(c, 0.08);
+    grad.addColorStop(0, rgba(rootC, strand.alpha * 0.9));
+    grad.addColorStop(0.2, rgba(c, strand.alpha));
+    grad.addColorStop(0.8, rgba(c, strand.alpha * 0.85));
+    grad.addColorStop(1, rgba(tipC, strand.alpha * 0.5));
+    ctx.strokeStyle = grad;
+    ctx.lineWidth = strand.width;
+  }
+
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.stroke();
+}
+
+function renderShadowBase(ctx, bounds, profile, anchors, baseColor, opacity) {
+  const { crownY, leftX, rightX, endY, centerX, crownH, sideV } = bounds;
+  const { faceWidth, leftEar, rightEar } = anchors;
+
+  // Dark semi-transparent mass underneath
+  ctx.beginPath();
+  const pad = faceWidth * 0.02;
+  ctx.moveTo(leftX + pad, endY);
+  ctx.bezierCurveTo(
+    leftX - pad, (leftEar.y + crownY) / 2,
+    leftX, crownY + crownH * 0.3,
+    centerX, crownY - crownH * 0.05
+  );
+  ctx.bezierCurveTo(
+    rightX, crownY + crownH * 0.3,
+    rightX + pad, (rightEar.y + crownY) / 2,
+    rightX - pad, endY
+  );
+  ctx.closePath();
+
+  const shadow = darken(baseColor, 0.4);
+  ctx.fillStyle = rgba(shadow, opacity * 0.45);
+  ctx.fill();
+}
+
+function renderShine(ctx, bounds, baseColor, opacity) {
+  const { crownY, centerX, crownH, leftX, rightX } = bounds;
+  const w = (rightX - leftX) * 0.35;
+
+  const grad = ctx.createRadialGradient(
+    centerX, crownY + crownH * 0.6, w * 0.05,
+    centerX, crownY + crownH * 0.6, w
+  );
+  const hl = lighten(baseColor, 0.55);
+  grad.addColorStop(0, rgba(hl, opacity * 0.18));
+  grad.addColorStop(0.6, rgba(hl, opacity * 0.06));
+  grad.addColorStop(1, rgba(hl, 0));
+
+  ctx.fillStyle = grad;
+  ctx.fillRect(centerX - w, crownY, w * 2, crownH * 2);
+}
+
+// ===== Public API =====
 
 export function renderHairOverlay(ctx, landmarks, canvasWidth, canvasHeight, style, options = {}) {
   const {
@@ -297,63 +481,88 @@ export function renderHairOverlay(ctx, landmarks, canvasWidth, canvasHeight, sty
 
   const anchors = getAnchorPoints(landmarks, canvasWidth, canvasHeight);
   const profile = style.profile;
+  const bounds = computeBounds(anchors, profile, heightMultiplier, widthMultiplier);
+  const baseColor = parseHexColor(color);
 
-  ctx.save();
-  ctx.globalAlpha = opacity;
+  // Determine texture from style
+  const texture = style.hairTypes.includes("coily") && style.hairTypes.length <= 2 ? "coily"
+    : style.hairTypes.includes("curly") && style.hairTypes.length === 1 ? "curly"
+    : style.hairTypes.includes("wavy") && !style.hairTypes.includes("straight") ? "wavy"
+    : profile.textureDetail === "curly" ? "curly"
+    : profile.textureDetail === "wavy" ? "wavy"
+    : "straight";
 
-  // Main hair body
-  buildHairPath(ctx, anchors, profile, heightMultiplier, widthMultiplier);
-  ctx.fillStyle = color;
-  ctx.fill();
+  // Seeded RNG for stable rendering
+  const seed = style.id.split("").reduce((a, c) => a * 31 + c.charCodeAt(0), 0);
+  const rng = seededRandom(seed);
 
-  // Bangs
-  buildBangsPath(ctx, anchors, profile, heightMultiplier, widthMultiplier);
-  ctx.fillStyle = color;
-  ctx.fill();
+  // Generate all strands
+  const bodyStrands = generateAllStrands(bounds, profile, anchors, heightMultiplier, widthMultiplier, rng, texture);
+  const bangStrands = generateBangStrands(bounds, profile, anchors, heightMultiplier, widthMultiplier, rng, texture);
 
-  // Texture lines
-  ctx.globalAlpha = opacity * 0.6;
-  addTextureLines(ctx, anchors, profile, heightMultiplier, widthMultiplier);
+  // Use offscreen canvas for compositing
+  let offCanvas, offCtx;
+  if (typeof OffscreenCanvas !== "undefined") {
+    offCanvas = new OffscreenCanvas(canvasWidth, canvasHeight);
+    offCtx = offCanvas.getContext("2d");
+  } else {
+    offCanvas = document.createElement("canvas");
+    offCanvas.width = canvasWidth;
+    offCanvas.height = canvasHeight;
+    offCtx = offCanvas.getContext("2d");
+  }
 
-  ctx.restore();
+  // Shadow base
+  renderShadowBase(offCtx, bounds, profile, anchors, baseColor, opacity);
+
+  // Draw body strands
+  for (const strand of bodyStrands) {
+    drawStrand(offCtx, strand, baseColor);
+  }
+
+  // Clear face region so strands behind the face boundary disappear
+  clearFaceRegion(offCtx, landmarks, canvasWidth, canvasHeight);
+
+  // Draw bang strands (on top of everything, including over face edge)
+  for (const strand of bangStrands) {
+    drawStrand(offCtx, strand, baseColor);
+  }
+
+  // Add shine
+  renderShine(offCtx, bounds, baseColor, opacity);
+
+  // Composite onto main canvas
+  ctx.drawImage(offCanvas, 0, 0);
 }
 
 export function estimateHairColor(imageData, landmarks, width, height) {
-  // Sample pixels in the hair region (above forehead, near temples)
   const top = landmarks[10];
   const leftHair = landmarks[21];
   const rightHair = landmarks[251];
 
   const samplePoints = [];
-  // Above forehead
   for (let dy = -0.08; dy <= -0.02; dy += 0.02) {
     for (let dx = -0.06; dx <= 0.06; dx += 0.03) {
       samplePoints.push({ x: top.x + dx, y: top.y + dy });
     }
   }
-  // Near temples
   samplePoints.push({ x: leftHair.x - 0.03, y: leftHair.y - 0.02 });
   samplePoints.push({ x: rightHair.x + 0.03, y: rightHair.y - 0.02 });
 
   let r = 0, g = 0, b = 0, count = 0;
-
   for (const pt of samplePoints) {
     const px = Math.round(pt.x * width);
     const py = Math.round(pt.y * height);
     if (px < 0 || px >= width || py < 0 || py >= height) continue;
-
     const idx = (py * width + px) * 4;
     r += imageData.data[idx];
     g += imageData.data[idx + 1];
     b += imageData.data[idx + 2];
     count++;
   }
-
   if (count === 0) return "#3d2b1f";
-
   r = Math.round(r / count);
   g = Math.round(g / count);
   b = Math.round(b / count);
-
   return `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
 }
