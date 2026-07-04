@@ -398,6 +398,8 @@ export default function ResultsView({ classification, recommendations, gender, f
 
             <ProportionGroup title="Face Ratio (W:H)" data={{
               "Value": classification.proportions.faceRatio?.value,
+              "Face width": classification.proportions.faceRatio?.faceWidth,
+              "Face height": classification.proportions.faceRatio?.faceHeight,
             }} result={classification.faceRatio} />
 
             <ProportionGroup title="Facial Thirds" data={{

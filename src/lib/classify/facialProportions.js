@@ -68,6 +68,8 @@ export function classifyFacialProportions(landmarks) {
   return {
     widthHeightRatio: {
       value: widthHeightRatio,
+      faceWidth,
+      faceHeight,
       label: widthHeightRatio > 1.7 ? "narrow" : widthHeightRatio < 1.45 ? "wide" : "balanced",
     },
     facialThirds: {
