@@ -1,33 +1,43 @@
 @import "tailwindcss";
 
 @theme {
-  /* Palette: editorial grooming-magazine feel */
   --color-ink: #1a1a1a;
-  --color-paper: #f7f5f0;
+  --color-paper: #f5f0e8;
   --color-stone: #d4cfc6;
   --color-clay: #a89b8c;
-  --color-sage: #7a8a6e;
-  --color-sage-light: #e8ece4;
   --color-charcoal: #3d3d3d;
   --color-warm-white: #faf8f5;
   --color-error: #b44d3e;
-  --color-amber: #c4953a;
-  --color-success: #5a7a4e;
+  --color-cinnabar: #c53d2c;
+  --color-gold: #b8960c;
+  --color-gold-light: #f0e6c8;
+  --color-bone: #f5f0e8;
+  --color-bamboo: #4a6741;
+  --color-cloud: #e8e4dc;
+  --color-ink-light: #2d2d2d;
 
-  /* Type scale */
-  --font-display: "Playfair Display", Georgia, serif;
+  --font-display: "Noto Serif", "Playfair Display", Georgia, "Songti SC", "SimSun", serif;
   --font-body: "DM Sans", system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-cjk: "Noto Serif SC", "Songti SC", "SimSun", "MS Mincho", serif;
 }
 
 @layer base {
   @font-face {
-    font-family: "Playfair Display";
+    font-family: "Noto Serif";
+    font-style: normal;
+    font-weight: 400 700;
+    font-display: swap;
+    src: url("https://fonts.gstatic.com/s/notoserif/v23/ga6iaw1J5X9T9RW6j9bNVls-hfgvz8brxZs.woff2")
+      format("woff2");
+  }
+  @font-face {
+    font-family: "Noto Serif SC";
     font-style: normal;
     font-weight: 400 900;
     font-display: swap;
-    src: url("https://fonts.gstatic.com/s/playfairdisplay/v37/nuFvD-vYSZviVYUb_rj3ij__anPXJzDwcbmjWBN2PKdFvXDTbtPY_Q.woff2")
+    src: url("https://fonts.gstatic.com/s/notoserifsc/v22/H4c8BXePl9DZ0Xe7gG9cyOj7mm63SzZBEtERe7U.woff2")
       format("woff2");
+    unicode-range: U+4E00-9FFF, U+3400-4DBF, U+2F00-2FDF, U+3000-303F;
   }
   @font-face {
     font-family: "DM Sans";
@@ -47,5 +57,65 @@
 
   * {
     box-sizing: border-box;
+  }
+}
+
+@layer components {
+  .hex-line {
+    transition: all 0.4s ease;
+  }
+
+  .coin-flip {
+    animation: coinSpin 0.6s ease-out;
+  }
+
+  @keyframes coinSpin {
+    0% { transform: rotateY(0deg) scale(0.8); opacity: 0.5; }
+    50% { transform: rotateY(540deg) scale(1.1); }
+    100% { transform: rotateY(1080deg) scale(1); opacity: 1; }
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes buildLine {
+    from { opacity: 0; transform: scaleX(0); }
+    to { opacity: 1; transform: scaleX(1); }
+  }
+
+  .animate-fade-in-up {
+    animation: fadeInUp 0.5s ease-out both;
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.4s ease-out both;
+  }
+
+  .animate-build-line {
+    animation: buildLine 0.5s ease-out both;
+  }
+
+  .ink-wash {
+    background: linear-gradient(
+      135deg,
+      var(--color-paper) 0%,
+      var(--color-cloud) 50%,
+      var(--color-paper) 100%
+    );
+  }
+
+  .ink-border {
+    border: 1px solid color-mix(in srgb, var(--color-ink) 15%, transparent);
+  }
+
+  .cinnabar-glow {
+    box-shadow: 0 0 20px color-mix(in srgb, var(--color-cinnabar) 15%, transparent);
   }
 }
